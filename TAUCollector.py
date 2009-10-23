@@ -1,0 +1,32 @@
+#!/usr/bin/python
+
+from params import *
+import os
+
+class TAUCollector:
+
+    def setCounters(self):
+
+	for i in range (0, len(counters)):	
+		os.environ['COUNTER' + str(i)] = counters[i]
+		if DEBUG==1:
+			print 'COUNTER' + str(i) + ': ' + os.environ.get('COUNTER' + str(i))
+			
+    def getCommand(self):
+
+        if pmodel == 'mpi' and instrumentation == 'runtime':
+            mycommand = 'tauex '
+
+            for e in counters:
+                mycommand +=  ' -e ' + e + ' '
+        else:
+		mycommand = ' '
+
+	if DEBUG==1:
+        	print 'DEBUG: performance tool command:  ', mycommand
+        
+        return mycommand
+
+    def getDataFormat(self):
+        
+        return 'profiles'
