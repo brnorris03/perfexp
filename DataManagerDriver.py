@@ -2,13 +2,13 @@
 
 from params import *
 from PerfDMFDB import *
-from AIXMeasurementEnv import *
+from XeonMeasurementEnv import *
 
 def main():
               
     print 'loading data\n'
 
-    Me = AIXMeasurementEnv()
+    Me = XeonMeasurementEnv()
     Me.loadTrials()
 
     print 'finish loading data\n'

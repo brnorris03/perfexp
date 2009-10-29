@@ -4,40 +4,40 @@ DEBUG = 1
 
 # Parameters for ExperimentDriver
 
-workdir = '/u/home/ac/vtbui/projects/benchmarks/ra/openmp'
-mpidir = ' '
-cmdline = 'poe /u/home/ac/vtbui/projects/benchmarks/ra/openmp/./random_access'
-threads = ['1','2','4','8','16']
+workdir = '/homes/vbui/projects/benchmarks/ra-bp/src/openmp'
+mpidir = '/disks/large/soft/mpich2-1.2-intel/bin'
+cmdline = '/homes/vbui/projects/benchmarks/ra-bp/src/openmp/./random_access'
+threads = ['1','2','4','8']
 processes = ['1']
 nodes = ['1']
-tasks_per_node = ['1','2','4','8','16']
-pmodel = 'mpi'
-instrumentation = 'runtime'
-exemode = 'batch'
+tasks_per_node = ['1']
+pmodel = 'omp'
+instrumentation = 'compiletime'
+exemode = 'interactive'
 batchcmd = 'llsubmit'
 
 # Parameters for MeasurementEnvironment
 
-counters = ['P_WALL_CLOCK_TIME', 'PAPI_TOT_CYC', 'PAPI_TOT_INS']
+counters = ['PAPI_TOT_CYC']
 
 # Parameters for DataManager
 
-datadir = '/homes/vbui/projects/benchmarks/ra-bp/data-mpi'
+datadir = '/homes/vbui/projects/benchmarks/ra-bp/src/openmp/data'
 appname =  'randomaccess'
-expname = 'mpi'
-trialname = 'aix-tau'
+expname = 'cookie-omp'
+trialname = 'tau-omp'
 cqosloaderdir = '/homes/vbui/projects/experiments/fun3d'
 cqosloader = 'CQoSDataLoader_fat_tau.jar'
 dbconfig = 'random_access'
 
 # Parameters for Analysis
 
-resultsdir = '/homes/vbui/projects/benchmarks/ra-bp/results-mpi'
+resultsdir = '/homes/vbui/projects/benchmarks/ra-bp/src/openmp/data'
 programevent = '.TAU application' 
 metric = 'PAPI_TOT_CYC'
-xaxislabel = 'Processes'
-yaxislabel = 'Cycles'
-graphtitle = 'RandomAccess: MPI'
-mhz = '1.9e9'
+xaxislabel = 'Threads'
+yaxislabel = 'Time (secs)'
+graphtitle = 'RandomAccess: OpenMP'
+mhz = '2.8e9'
 ptool = 'tau'
 l2cacheline = '64'

@@ -7,8 +7,8 @@ class TAUCollector:
 
     def setCounters(self):
 
-	for i in range (0, len(counters)):	
-		os.environ['COUNTER' + str(i)] = counters[i]
+	for i in range (1, (len(counters) + 1)):	
+		os.environ['COUNTER' + str(i)] = counters[i-1]
 		if DEBUG==1:
 			print 'COUNTER' + str(i) + ': ' + os.environ.get('COUNTER' + str(i))
 			
