@@ -113,12 +113,28 @@ class AIXMeasurementEnv:
 		if pmodel == 'omp':
 			for p in processes:
 				for t in threads:
+
 					destdir = datadir + '/' + appname + '-' + expname + '-' + trialname + '-p' + p + 't' + t
-					tn = trialname + '-p' + p + '-t' + t
+					tn = trialname + '-p' + p + 't' + t
+		                        #temporary fix
+					cpcmd = 'cp ' + datadir + '/' + appname + '-' + expname +'-' + '/profile* ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/MULTI*'
+					if DEBUG == 1:
+						print 'copy profiles: ', cpcmd
+					commands.getstatusoutput(cpcmd)
+					
+
 					DB.load(destdir, tn)
 		elif pmodel == 'mpi':	
 			for n in nodes:
 				for t in tasks_per_node:
 					destdir = datadir + '/' + appname + '-' + expname + '-' + trialname + '-p' + n + 't' + t
-					tn = trialname + '-p' + n + '-t' + t
+					tn = trialname + '-p' + n + 't' + t
+		                        #temporary fix
+					cpcmd = 'cp ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/profile* ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/MULTI*'
+					if DEBUG == 1:
+						print 'copy profiles: ', cpcmd
+
+					commands.getstatusoutput(cpcmd)
+		
+
 					DB.load(destdir, tn)
