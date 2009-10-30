@@ -30,16 +30,16 @@ class XeonMeasurementEnv:
 		DataCollector.setCounters()
 		cmd = ''
 
-		for p in processes:
+		for p,o in map(None, processes, cmdlineopts):
         		for t in threads:
 
 				if pmodel == 'omp' or pmodel == 'mpi:omp':
                 			os.environ['OMP_NUM_THREADS'] = t
-					cmd = cmdline
-				elif pmodel == 'mpi':
-					cmd = mpidir + '/mpirun -np ' + p + ' ' + cmdline 
-                       		else:
 					cmd = cmdline 
+				elif pmodel == 'mpi':
+					cmd = mpidir + '/mpirun -np ' + p + ' ' + cmdline + ' ' + o 
+                       		else:
+					cmd = cmdline  
 
                 		if DEBUG == 1:
                         		print 'DEBUG: executing: ', cmd
