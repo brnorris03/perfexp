@@ -53,14 +53,17 @@ class AIXMeasurementEnv:
 					os.environ['OMP_NUM_THREADS'] = t
 					self.runit(p,t)
 		if pmodel == 'mpi': 
-   			for p in nodes:
+   			for p,o in map(None, nodes, cmdlineopts):
         			for t in tasks_per_node:
-					self.runit(p,t)
+					self.runit(p,t,o)
                 			
 
-	def runit(self,p,t):
-				
-      		cmd = cmdline 
+	def runit(self,p,t,o):
+
+		if o != None:				
+      			cmd = cmdline + ' ' + o
+		else:
+			cmd = cmdline
 
        		if DEBUG == 1:
            		print 'DEBUG: executing: ', cmd
