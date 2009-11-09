@@ -20,7 +20,7 @@ class AIXMeasurementEnv:
 		print >>f, '#@ tasks_per_node = ' + str(tasks_per_node)
 		print >>f, '#@ node = ' + str(node)
 		print >>f, '#@ network.MPI_LAPI = sn_all,not_shared,US'
-		print >>f, '#@ wall_clock_limit = 0:55:00'
+		print >>f, '#@ wall_clock_limit = ' + maxtime
 		print >>f, '#@ output = $(host).$(jobid).$(stepid).out'
 		print >>f, '#@ error = $(host).$(jobid).$(stepid).err'
 		print >>f, '#@ queue'
