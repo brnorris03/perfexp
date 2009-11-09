@@ -4,6 +4,7 @@ import os, commands
 from params import *
 from TAUCollector import *
 from PerfDMFDB import *
+from LogGPFT import *
 
 class XeonMeasurementEnv:
 
@@ -96,3 +97,21 @@ class XeonMeasurementEnv:
 				tn = trialname + '-p' + p + '-t' + t
 				DB.load(destdir, tn)
 
+
+        def validateModel(self):
+
+                model = LogGPFT()
+                params = []
+                xdata = []
+                ydata = []
+
+                if pmodel == 'mpi':
+                        for n in processes:
+
+				P = n
+				params.insert(0,P)
+				result = model.validate(params)
+				xdata.append(P)
+				ydata.append(result)
+
+                return xdata, ydata

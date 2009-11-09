@@ -4,6 +4,7 @@ import os, commands
 from params import *
 from TAUCollector import *
 from PerfDMFDB import *
+from LogPFT import *
 
 class AIXMeasurementEnv:
 
@@ -141,3 +142,21 @@ class AIXMeasurementEnv:
 		
 
 					DB.load(destdir, tn)
+	def validateModel(self):				
+
+		model = LogPFT()
+		params = []
+		xdata = []
+		ydata = []
+		
+		if pmodel == 'mpi':
+			for n in nodes:
+				for t in tasks_per_node:
+
+					P = int(n) * int(t)
+					params.insert(0,P)
+					result = model.validate(params)
+					xdata.append(P)
+					ydata.append(result)
+
+		return xdata, ydata			

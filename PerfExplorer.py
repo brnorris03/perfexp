@@ -144,3 +144,4 @@ class PerfExplorer:
         print >>f, 'if __name__ == "__main__":'
         print >>f, '\tglue()'
 
+
