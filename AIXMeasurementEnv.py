@@ -50,14 +50,18 @@ class AIXMeasurementEnv:
 
 		if pmodel == 'omp':
 			for p in nodes:
-				for t in threads:
+				for t,o in map(None, threads,cmdlineopts):
 					os.environ['OMP_NUM_THREADS'] = t
 					self.runit(p,t)
 		if pmodel == 'mpi': 
    			for p,o in map(None, nodes, cmdlineopts):
         			for t in tasks_per_node:
 					self.runit(p,t,o)
-                			
+		if pmodel == 'mpi:omp':	                
+			for p,o in map(None, nodes, cmdlineopts):
+				for t in threads:
+					os.environ['OMP_NUM_THREADS'] = t
+					self.runit(p,t,o)
 
 	def runit(self,p,t,o):
 

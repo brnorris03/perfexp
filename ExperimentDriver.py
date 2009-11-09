@@ -1,13 +1,13 @@
 #!/usr/bin/python
 
 from params import *
-from XeonMeasurementEnv import *
+from AIXMeasurementEnv import *
 from TAUCollector import *
 import os, commands
 	
 def main():
 
-    MeasurementEnvironment = XeonMeasurementEnv()
+    MeasurementEnvironment = AIXMeasurementEnv()
     DataCollector = TAUCollector()
 
     DataCollector.setCounters()
