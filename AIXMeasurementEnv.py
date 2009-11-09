@@ -115,13 +115,14 @@ class AIXMeasurementEnv:
 		DB = PerfDMFDB()
 
 		if pmodel == 'omp':
-			for p in processes:
+			for p in nodes:
 				for t in threads:
 
 					destdir = datadir + '/' + appname + '-' + expname + '-' + trialname + '-p' + p + 't' + t
 					tn = trialname + '-p' + p + 't' + t
 		                        #temporary fix
-					cpcmd = 'cp ' + datadir + '/' + appname + '-' + expname +'-' + '/profile* ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/MULTI*'
+
+					cpcmd = 'mv -f ' + datadir + '/' + appname + '-' + expname +'-' + tn + '/profile* ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/MULTI*'
 					if DEBUG == 1:
 						print 'copy profiles: ', cpcmd
 					commands.getstatusoutput(cpcmd)
