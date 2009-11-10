@@ -15,18 +15,17 @@ class LogGPFT:
         G = int(modelparams[5])
 
         P = int(params[0])        
-        p = float(float(P)/2)
         n = float(N/3)
 
-        term1 = tc * n/p * log(n,2)
-        term2 = ((p-1) * o) + (tc * n * n * log(n,2))
-        term3 = ((p-1) * g) + (n * n * G) + L
-        term4 = o + (n/p -1) * max(term2, term3)
-        term5 = (p - 1) * o
-        term6 = (p - 2) * g
-        term7 = n/p * n * G
+        term1 = tc * n/P * log(n,2)
+        term2 = ((P-1) * o) + (tc * n * n * log(n,2))
+        term3 = ((P-1) * g) + (n * n * G) + L
+        term4 = o + (n/P -1) * max(term2, term3)
+        term5 = (P - 1) * o
+        term6 = (P - 2) * g
+        term7 = n/P * n * G
         term8 = term1 + term4 + term5 + term6 + term7 + L
-        term9 = tc * ((n*n)/(p*p))*n*log(n,2)*2        
+        term9 = tc * ((n*n)/(P))*n*log(n,2)*2        
 
         time = term8 + term9
 
