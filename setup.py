@@ -16,4 +16,5 @@ setup (name = "PerfExp", version = "0.1",
                    'perfexp.util',
                    'perfexp.vis', 'perfexp.vis.tools',
                    'perfexp.examples', 'perfexp.examples.drivers', 'perfexp.examples.models'],
+       scripts = ['scripts/perfexp'],
       )

@@ -2,11 +2,9 @@
 
 from me.platforms.xeon import Generic as XeonMeasurementEnv
 from vis.tools.pylab import Plotter
-import util.config
 
 def main():
 
-    util.config.setPythonPath()     # automatically set the Python search path
     
     vm = XeonMeasurementEnv()
     plotter = Plotter()
