@@ -125,9 +125,11 @@ if __name__ == "__main__":
         sys.exit(1)
         
     drivermod = driver.split('.')[-1]
+    modpath = sys.path
+    modpath.append(driverdir)
         
     try:
-        (file,filename,description) = imp.find_module(drivermod,sys.path)
+        (file,filename,description) = imp.find_module(drivermod,modpath)
         mod = imp.load_module(drivermod, file, filename, description)
     except RuntimeError,e:
         sys.stderr.write('perfexp ERROR: %s\n' + errMsg())
