@@ -1,3 +1,4 @@
+
 class AbstractPlatform:
     def runApp(self, cmd):
         raise NotImplementedError
@@ -10,6 +11,11 @@ class AbstractPlatform:
         '''
         raise NotImplementedError
 
+    def validateModel(self, model):
+        '''
+        Validate the model (the parameter is an instance of an implementation of AbstractModel).
+        '''
+        raise NotImplementedError
 
 class AbstractCollector:
     def setCounters(self):
