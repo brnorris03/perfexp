@@ -73,6 +73,7 @@ def setPythonPath():
     if perfexpPath and os.path.exists(perfexpPath): 
         sys.path.append(perfexpParent)
         sys.path.append(perfexpPath)
+        sys.path.append(os.path.join(perfexpPath,'analysis','metrics'))
         sys.path.append(os.path.join(perfexpPath,'examples'))
     
     if 'PERFEXP_DEBUG' in os.environ.keys():
@@ -134,8 +135,7 @@ if __name__ == "__main__":
     except RuntimeError,e:
         sys.stderr.write(errMsg(e))
         sys.exit(1)
-        
-    print 'here 5'
+
 
     mod.main()
 

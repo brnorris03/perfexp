@@ -57,17 +57,17 @@ def glue():
 
         if self.params['name']  == 'Time' or self.params['name'] == 'P_WALL_CLOCK_TIME':
             buf += '''        
-                    wallClock = trial.getInclusive(p, event, '@METRIC@')
-                    wallSum += wallClock / 1000000
-                    data[node_count] = wallSum / node_count
-                    outstr = ''.join([app,'_', expName, '["WallClock"] = ', str(data[node_count]), ''])
+                        wallClock = trial.getInclusive(p, event, '@METRIC@')
+                        allSum += wallClock / 1000000
+                        data[node_count] = wallSum / node_count
+                        outstr = ''.join([app,'_', expName, '["WallClock"] = ', str(data[node_count]), ''])
 '''
         elif self.params['name'] == 'PAPI_TOT_CYC':
             buf += '''
-                    wallClock = trial.getInclusive(p, event, "PAPI_TOT_CYC")/@MHZ@
-                    wallSum += wallClock
-                    data[node_count] = wallSum / (node_count)
-                    outstr = ''.join([app,'_', expName, '["WallClock"] = ', str(data[node_count]), ''])
+                        wallClock = trial.getInclusive(p, event, "PAPI_TOT_CYC")/@MHZ@
+                        wallSum += wallClock
+                        data[node_count] = wallSum / (node_count)
+                        outstr = ''.join([app,'_', expName, '["WallClock"] = ', str(data[node_count]), ''])
 '''
         buf += '''
     
