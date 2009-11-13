@@ -7,7 +7,7 @@ from me.interfaces import AbstractPlatform
 
 from me.tools.tau import Collector as TAUCollector
 from storage.tools.tau import PerfDMFDB 
-from analysis.intefaces import AbstractModel
+from analysis.interfaces import AbstractModel
 
 class Generic(AbstractPlatform):
 
