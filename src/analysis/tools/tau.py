@@ -8,16 +8,16 @@ import commands, sys, os
 
 class PerfExplorer(AbstractAnalyzer):
 
-    def runAnalysis(self):
+    def runAnalysis(self, metric):
 
-        f = open('analysis.py', 'w')
-        self.genAnalysisScript(f)
+        f = open('analysisTAU.py', 'w')
+        self.genAnalysisScript(f, metric)
         f.close()
 
         analyzeCommand = 'perfexplorer -n -c '
-        analyzeCommand += dbconfig + ' -i ' + os.getcwd() + '/analysis.py'
+        analyzeCommand += dbconfig + ' -i ' + os.getcwd() + '/analysisTAU.py'
         moveResultsCommand = 'mv ' + os.getcwd() + '/plot.py ' + resultsdir
-        moveResultsCommand2 = 'mv ' + os.getcwd() + '/analysis.py ' + resultsdir
+        moveResultsCommand2 = 'mv ' + os.getcwd() + '/analysisTAU.py ' + resultsdir
 
         print 'debug:analysis command: ', analyzeCommand
         print 'debug: move results command: ', moveResultsCommand
@@ -29,14 +29,14 @@ class PerfExplorer(AbstractAnalyzer):
     def getScalingFactor(self):
         return 1.e-6
     
-    def genAnalysisScript(self, f):
+    def genAnalysisScript(self, f, metric):
         self.writeHeader(f)
         self.writeGetParameters(f)
         self.writeLoadExperiments(f)
         self.writeDeriveMetric(f)
         self.writeSortedDictValues(f)
         self.writeGeneratePlot(f)
-        cm = WallClock(metric)
+        cm = metric
         f.write(cm.generate(analyzer=self))
         self.writeMain(f)
 

@@ -36,7 +36,8 @@ dbconfig = 'benchmarks'
 
 resultsdir = '/homes/vbui/projects/benchmarks/ft-c'
 programevent = '.TAU application' 
-metric = 'PAPI_TOT_CYC'
+metric = 'WallClock'
+metricparams = {'name':'PAPI_TOT_CYC'}
 xaxislabel = 'MPI Processes'
 yaxislabel = 'Time (secs)'
 graphtitle = 'FT: MPI, Tasks=16'

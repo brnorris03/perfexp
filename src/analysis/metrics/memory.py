@@ -7,6 +7,9 @@ import sys
 
 class L2BW(AbstractMetric):
 
+    def __init__(self, params={}):
+        self.params = params
+
     def generate(self, analyzer=None):
         
         # The PerfExplorer script template
@@ -70,18 +73,18 @@ def glue():
     return
 '''
         # Specialize the template
-        buf.replace('@APPNAME@',appname)
+        buf = buf.replace('@APPNAME@',appname)
         if pmodel == 'mpi':
-            buf.replace('@PROCS@','node_count')
+            buf = buf.replace('@PROCS@','node_count')
         else:
-            buf.replace('@PROCS@','threads_per_context')
-        buf.replace('@PROGRAM_EVENT@', programevent)
-        buf.replace('@L2_CACHELINE@', l2cacheline)
-        buf.replace('@MHZ@',mhz)
+            buf = buf.replace('@PROCS@','threads_per_context')
+        buf = buf.replace('@PROGRAM_EVENT@', programevent)
+        buf = buf.replace('@L2_CACHELINE@', l2cacheline)
+        buf = buf.replace('@MHZ@',mhz)
         if analyzer:
-            buf.replace('@SCALING_FACTOR@',analyzer.getScalingFactor())
+            buf = buf.replace('@SCALING_FACTOR@',analyzer.getScalingFactor())
         else:
-            buf.replace('@SCALING_FACTOR@', '1')
+            buf = buf.replace('@SCALING_FACTOR@', '1')
             
         return buf
         

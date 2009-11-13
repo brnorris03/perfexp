@@ -1,6 +1,12 @@
 
 class AbstractMetric:
 
+    def __init__(self, params={}):
+        '''
+        Metric constructor with an optional dictionary of name=value parameters.
+        '''
+        raise NotImplementedError
+    
     def generate(self, analyzer=None):
         '''
         Generate the performance metric computation.
@@ -22,8 +28,11 @@ class AbstractModel:
 
 class AbstractAnalyzer:
     
-    def runAnalysis(self):
-        '''Perform the analysis.'''
+    def runAnalysis(self, metric):
+        '''
+        Perform the analysis. The argument metric is an instance of an implementation
+        of the analysis.interfaces.AbstractMetric interface.
+        '''
         raise NotImplementedError
     
     def getScalingFactor(self):

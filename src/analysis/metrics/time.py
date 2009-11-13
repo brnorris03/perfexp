@@ -7,9 +7,11 @@ import sys
 
 class WallClock(AbstractMetric):
 
-    def __init__(self,name='P_WALL_CLOCK_TIME'):
-        self.metric = name
-        
+    def __init__(self, params={}):
+        self.params = params
+        if 'name' not in self.params.keys():
+            self.params['name'] = 'Time'
+
     def generate(self, analyzer=None):
         
         # The PerfExplorer script template
@@ -53,14 +55,14 @@ def glue():
                     for p in range(node_count):
 '''
 
-        if self.metric  == 'Time' or self.metric == 'P_WALL_CLOCK_TIME':
+        if self.params['name']  == 'Time' or self.params['name'] == 'P_WALL_CLOCK_TIME':
             buf += '''        
                     wallClock = trial.getInclusive(p, event, '@METRIC@')
                     wallSum += wallClock / 1000000
                     data[node_count] = wallSum / node_count
                     outstr = ''.join([app,'_', expName, '["WallClock"] = ', str(data[node_count]), ''])
 '''
-        elif self.metric == 'PAPI_TOT_CYC':
+        elif self.params['name'] == 'PAPI_TOT_CYC':
             buf += '''
                     wallClock = trial.getInclusive(p, event, "PAPI_TOT_CYC")/@MHZ@
                     wallSum += wallClock
@@ -78,12 +80,12 @@ def glue():
 '''
     
         # Specialize the template
-        buf.replace('@APPNAME@',appname)
+        buf = buf.replace('@APPNAME@',appname)
         if pmodel == 'mpi':
-            buf.replace('@PROCS@','node_count')
+            buf = buf.replace('@PROCS@','node_count')
         else:
-            buf.replace('@PROCS@','threads_per_context')
-        buf.replace('@PROGRAM_EVENT@',programevent)
-        buf.replace('@MHZ@',mhz)
+            buf = buf.replace('@PROCS@','threads_per_context')
+        buf = buf.replace('@PROGRAM_EVENT@',programevent)
+        buf = buf.replace('@MHZ@',mhz)
             
         return buf        
