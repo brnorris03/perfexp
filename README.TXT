@@ -32,5 +32,13 @@ To install in an alternate location:
 Running
 =======
 
-See the driver examples in src/examples/drivers/.
+Usage: 
+    perfexp <drivermodule>
 
+The driver module is a Python module in your Python path. Some examples are included in the examples/drivers directory. You can try them with:
+    perfexp examples.drivers.ExperimentDriver
+    perfexp examples.drivers.DataManagerDriver
+    perfexp examples.drivers.AnalysisDriver
+    perfexp examples.drivers.ModelDriver
+
+You may need to adjust the examples/params.py file settings for the above examples to work.
