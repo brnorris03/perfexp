@@ -2,14 +2,14 @@
 
 from params import *
 
-import util.setup 
+import util.config 
 from me.platforms.aix import BluePrint
 from me.tools.tau import Collector as TAUCollector 
 import os, commands
 	
 def main():
 
-	util.setup.setPythonPath()     # automatically set the Python search path
+	util.config.setPythonPath()     # automatically set the Python search path
 	
 	measurementEnvironment = BluePrint()
 	dataCollector = TAUCollector()

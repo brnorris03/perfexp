@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
 from params import *
-import util.setup
+import util.config
 from analysis.tools.tau import PerfExplorer
 
 def main():
 
-    util.setup.setPythonPath()     # automatically set the Python search path
+    util.config.setPythonPath()     # automatically set the Python search path
     
     analysis = PerfExplorer()
     analysis.runAnalysis()
