@@ -15,7 +15,7 @@ class WallClock(AbstractMetric):
         buf = '''
 def glue():
 
-    app = '@APPNAME'
+    app = '@APPNAME@'
     
     getParameters()
     experiments = loadExperiments(app)
@@ -29,13 +29,13 @@ def glue():
 
         trials = Utilities.getTrialsForExperiment(app, expName)
         totalTrials = trials.size()
-        print '\rLoaded ', totalTrials, 'trials'
+        print '\\rLoaded ', totalTrials, 'trials'
 
         for tr in trials:
             trial = TrialResult(tr)
             trialName = trial.getName()
             trialNamePieces = trialName.split('_')
-            print '\rLooking at trial ', trialName
+            print '\\rLooking at trial ', trialName
 
             extractor = ExtractNonCallpathEventOperation(trial)
             extracted = extractor.processData().get(0)
@@ -52,24 +52,24 @@ def glue():
                     for p in range(node_count):
 '''
 
-    if self.metric  == 'Time' or self.metric == 'P_WALL_CLOCK_TIME':
-        buf += '''        
+        if self.metric  == 'Time' or self.metric == 'P_WALL_CLOCK_TIME':
+            buf += '''        
                     wallClock = trial.getInclusive(p, event, '@METRIC@')
                     wallSum += wallClock / 1000000
                     data[node_count] = wallSum / node_count
                     outstr = ''.join([app,'_', expName, '["WallClock"] = ', str(data[node_count]), ''])
 '''
-    elif self.metric == 'PAPI_TOT_CYC':
-        buf += '''
+        elif self.metric == 'PAPI_TOT_CYC':
+            buf += '''
                     wallClock = trial.getInclusive(p, event, "PAPI_TOT_CYC")/@MHZ@
                     wallSum += wallClock
                     data[node_count] = wallSum / (node_count)
                     outstr = ''.join([app,'_', expName, '["WallClock"] = ', str(data[node_count]), ''])
 '''
-    buf += '''
+        buf += '''
     
                         print outstr
-                        print '\r\r'
+                        print '\\r\\r'
 
     generatePlot(data)
 

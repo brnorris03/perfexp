@@ -7,70 +7,79 @@ import sys
 
 class L2BW(AbstractMetric):
 
-  def generate(self, f):
+    def generate(self, analyzer=None):
+        buf = '''
+def glue():
 
-    print >>f, 'def glue():'
+    app = '@APPNAME@'
+    
+    getParameters()
+    experiments = loadExperiments(app)
+    print 'Found ', len(experiments), 'experiments.'
+    data = {}
 
-    #parameter: app name                                                    
-    print >>f, '\tapp = \'' + appname + '\''
+    for exp in experiments:
+        # load trials
 
-    print >>f, '\tgetParameters()'
-    print >>f, '\texperiments = loadExperiments(app)'
-    print >>f, '\tprint \'Found \', len(experiments), \'experiments.\''
-    print >>f, '\tdata = {}'
+        expName = exp.getName()
 
-    print >>f, '\tfor exp in experiments:'
-    print >>f, '\t\t# load trials'
+        trials = Utilities.getTrialsForExperiment(app, expName)
+        totalTrials = trials.size()
+        print '\\rLoaded ', totalTrials, 'trials'
 
-    print >>f, '\t\texpName = exp.getName()'
+        for tr in trials:
+            trial = TrialResult(tr)
+            trialName = trial.getName()
+            trialNamePieces = trialName.split('_')
+            print '\\rLooking at trial ', trialName
 
-    print >>f, '\t\ttrials = Utilities.getTrialsForExperiment(app, expName)'
-    print >>f, '\t\ttotalTrials = trials.size()'
-    print >>f, '\t\tprint \'\\rLoaded \', totalTrials, \'trials\''
+            extractor = ExtractNonCallpathEventOperation(trial)
+            extracted = extractor.processData().get(0)
+            node_count = int(tr.getField('@PROCS@'))
+'''
+        if ptool.lower() == 'perfsuite': 
+            buf += '''
+            node_count -= 1
+            '''
+        buf += '''
+            print '#', trialName
 
-    print >>f, '\t\tfor tr in trials:'
-    print >>f, '\t\t\ttrial = TrialResult(tr)'
-    print >>f, '\t\t\ttrialName = trial.getName()'
-    print >>f, '\t\t\ttrialNamePieces = trialName.split(\'_\')'
-    print >>f, '\t\t\tprint \'\\rLooking at trial \', trialName'
+            for event in trial.getEvents():
 
-    print >>f, '\t\t\textractor = ExtractNonCallpathEventOperation(trial)'
-    print >>f, '\t\t\textracted = extractor.processData().get(0)'
+                print 'event: ', event
+                l2miss = 0
+                ttotcyc = 0
+                if event == '@PROGRAM_EVENT@':
+                    print "metric: Wall Clock"
+                    for p in range(node_count):
 
-    if pmodel == 'mpi': 
-      print >>f, '\t\t\tnode_count = int(tr.getField("node_count"))'
-    else:
-      print >>f, '\t\t\tnode_count = int(tr.getField("threads_per_context"))'
-    print >>f, '\t\t\tprint \'#\', trialName'
+                        l2miss += trial.getInclusive(p, event, "PAPI_L2_TCM") * @SCALING_FACTOR@
+                        totcyc += trial.getInclusive(p, event, "PAPI_TOT_CYC") * @SCALING_FACTOR@
+                        l2miss =  l2miss / (node_count)
+                        ttotcyc =  totcyc / (node_count)
+                        data[node_count] =  (((l2miss * @L2_CACHELINE@) / totcyc) * @MHZ@)
+                        outstr = ''.join([app,'_', expName, '["L2BW"] = ', str(data[node_count]), ''])
 
-    print >>f, '\t\t\tfor event in trial.getEvents():'
+                        print outstr
+                        print '\\r\\r'
 
-    print >>f, '\t\t\t\tprint \'event: \', event'
-    print >>f, '\t\t\t\tl2miss = 0'
-    print >>f, '\t\t\t\ttotcyc = 0'
-    print >>f, '\t\t\t\tif event == \'' + programevent + '\':'
-    print >>f, '\t\t\t\t\tprint "metric: Wall Clock"'
-    print >>f, '\t\t\t\t\tfor p in range(node_count):'
+    generatePlot(data)
 
-    if ptool == 'tau':
-      print >>f, '\t\t\t\t\t\tl2miss += trial.getInclusive(p, event, "PAPI_L2_TCM") / 1e6'
-      print >>f, '\t\t\t\t\t\ttotcyc += trial.getInclusive(p, event, "PAPI_TOT_CYC") / 1e6'
-      print >>f, '\t\t\t\t\tl2miss =  l2miss / (node_count)'
-      print >>f, '\t\t\t\t\ttotcyc =  totcyc / (node_count)'
-      print >>f, '\t\t\t\t\tdata[node_count] =  (((l2miss * ', l2cacheline, ') / totcyc) * ', mhz, ')'
-      print >>f, '\t\t\t\t\toutstr = \'\'.join([app,\'_\', expName, \'["L2BW"] = \', str(data[node_count]), \'\'])'
-    elif ptool == 'perfsuite':
-      print >>f, '\t\t\t\t\t\tl2miss += trial.getInclusive(p, event, "PAPI_L2_TCM")'
-      print >>f, '\t\t\t\t\t\ttotcyc += trial.getInclusive(p, event, "PAPI_TOT_CYC")'
-      print >>f, '\t\t\t\t\tl2miss =  l2miss / (node_count - 1)'
-      print >>f, '\t\t\t\t\ttotcyc =  totcyc / (node_count - 1)'
-      print >>f, '\t\t\t\t\tdata[node_count-1] =  (((l2miss * ', l2cacheline, ') / totcyc) * ', mhz, ')'
-      print >>f, '\t\t\t\t\toutstr = \'\'.join([app,\'_\', expName, \'["L2BW"] = \', str(data[node_count-1]), \'\'])'
-
-    print >>f, '\t\t\t\t\tprint outstr'
-
-    print >>f, '\t\t\t\t\tprint \'\\r\\r\''
-
-    print >>f, '\tgeneratePlot(data)'
-
-    print >>f, '\treturn\n'
+    return
+'''
+        # Specialize the template
+        buf.replace('@APPNAME@',appname)
+        if pmodel == 'mpi':
+            buf.replace('@PROCS@','node_count')
+        else:
+            buf.replace('@PROCS@','threads_per_context')
+        buf.replace('@PROGRAM_EVENT@', programevent)
+        buf.replace('@L2_CACHELINE@', l2cacheline)
+        buf.replace('@MHZ@',mhz)
+        if analyzer:
+            buf.replace('@SCALING_FACTOR@',analyzer.getScalingFactor())
+        else:
+            buf.replace('@SCALING_FACTOR@', '1')
+            
+        return buf
+        
