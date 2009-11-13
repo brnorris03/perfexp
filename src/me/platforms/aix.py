@@ -2,8 +2,8 @@
 
 import os, commands
 from params import *
-from perfexp.me.tools.tau import Collector as TAUCollector
-from perfexp.storage.tau import PerfDMFDB 
+from me.tools.tau import Collector as TAUCollector
+from storage.tau import PerfDMFDB 
 
 class BluePrint:
 

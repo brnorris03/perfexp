@@ -1,7 +1,7 @@
 #!/usr/bin/python                                                           
 from params import *
 import os
-from perfexp.me.collector import AbstractCollector
+from me.interfaces import AbstractCollector
 
 class Collector(AbstractCollector):
 

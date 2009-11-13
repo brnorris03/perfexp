@@ -2,7 +2,7 @@
 
 from math import *
 from params import * 
-from perfexp.analysis.model import AbstractModel 
+from analysis.interfaces import AbstractModel 
 
 class LogGPFT(AbstractModel):
 
