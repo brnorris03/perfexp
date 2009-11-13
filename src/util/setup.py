@@ -13,20 +13,20 @@ def getperfexpPkgDir():
     perfexp_execdir = os.path.dirname(os.path.realpath(sys.argv[0]))
     
     # first check whether we are in source tree
-    pos = perfexp.find('src')
+    pos = perfexp_execdir.find('src')
     if pos > 0:
         prefix = perfexp_execdir[:pos]
-        if os.path.exists(os.path.join(prefix,'analysis','metrics')): 
+        if os.path.exists(os.path.join(prefix,'src','analysis','metrics')): 
             return os.path.join(prefix, 'src'), prefix
     
     # else look for installed version
-    pos = perfexp.find('perfexp')  # installed location
+    pos = perfexp_execdir.find('perfexp')  # installed location
     if pos > 0:
         prefix = perfexp_execdir[:pos]
         if not os.path.exists(os.path.join(prefix,'analysis','metrics')): 
             prefix = None
 
-    if not prefix: return None  # give up
+    if not prefix: return None, None  # give up
     
     libdirname = distutils.sysconfig.get_config_var('LIB')
     if libdirname is None: 
@@ -67,16 +67,17 @@ def setPythonPath():
 
     # Set the python path
     (perfexpPath, perfexpParent) = getperfexpPkgDir()
+   
+    if os.path.exists(perfexpPath): 
+        sys.path.append(perfexpParent)
+        sys.path.append(perfexpPath)
+        sys.path.append(os.path.join(perfexpPath,'examples'))
     
-    sys.path.append(perfexpParent)
-    sys.path.append(perfexpPath)
-    sys.path.append(os.path.join(perfexpPath,'examples'))
     
-    
-    if 'perfexp_DEBUG' in os.environ.keys():
-        if os.environ['perfexp_DEBUG'] == "1":
-            sys.stderr.write('The perfexp module directory is %s' % perfexpPath)
-            sys.stderr.write('Full Python path: %s' % sys.path)
+    if 'PERFEXP_DEBUG' in os.environ.keys():
+        if os.environ['PERFEXP_DEBUG'] == "1":
+            sys.stderr.write('The perfexp module directory is %s\n' % perfexpPath)
+            sys.stderr.write('Full Python path: %s\n' % sys.path)
 
 
     try:
@@ -87,3 +88,9 @@ def setPythonPath():
         sys.stderr.write('\nFull Python path: %s' % sys.path)
         sys.exit(1)
  
+
+if __name__ == "__main__":
+
+    # Self test
+    setPythonPath()
+
