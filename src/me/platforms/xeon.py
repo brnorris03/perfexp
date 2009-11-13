@@ -90,9 +90,10 @@ class Generic(AbstractPlatform):
 				self.moveData(workdir, dest)
 
         
-	def loadTrials(self, DB):
+	def loadTrials(self, storage):
 		
 		#DB = PerfDMFDB()
+		DB = storage
 
 		for p in processes:
 			for t in threads:

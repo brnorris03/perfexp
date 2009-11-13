@@ -9,7 +9,7 @@ def main():
     print 'loading data\n'
 
     mEnv = BluePrint()
-    mEnv.loadTrials(storage=PerfDMFDB())
+    mEnv.loadTrials(storage = PerfDMFDB())
 
     print 'finish loading data\n'
 

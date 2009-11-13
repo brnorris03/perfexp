@@ -113,9 +113,10 @@ class BluePrint:
 		self.moveData(workdir, dest)
 
         
-	def loadTrials(self, DB):
+	def loadTrials(self, storage):
 		
 		#DB = PerfDMFDB()
+		DB = storage
 
 		if pmodel == 'omp':
 			for p in nodes:
