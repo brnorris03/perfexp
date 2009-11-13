@@ -12,6 +12,7 @@ class WallClock(AbstractMetric):
         
     def generate(self, analyzer=None):
         
+        # The PerfExplorer script template
         buf = '''
 def glue():
 

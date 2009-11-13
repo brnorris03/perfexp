@@ -8,6 +8,8 @@ import sys
 class L2BW(AbstractMetric):
 
     def generate(self, analyzer=None):
+        
+        # The PerfExplorer script template
         buf = '''
 def glue():
 

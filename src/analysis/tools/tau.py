@@ -36,8 +36,8 @@ class PerfExplorer(AbstractAnalyzer):
         self.writeDeriveMetric(f)
         self.writeSortedDictValues(f)
         self.writeGeneratePlot(f)
-        cm = WallClock()
-        f.write(cm.generate(self))
+        cm = WallClock(metric)
+        f.write(cm.generate(analyzer=self))
         self.writeMain(f)
 
     def writeHeader(self, f):
