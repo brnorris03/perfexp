@@ -48,4 +48,4 @@ l2cacheline = '64'
 # Parameters for Models
 
 modelparams = ['0.1','100','4','4','5','6']
-
+legend = ['Measured', 'LogP']
