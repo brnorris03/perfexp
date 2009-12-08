@@ -79,7 +79,7 @@ class Plotter(AbstractPlotter):
         print >>f, 'p1, = ax.plot(t, s, \'k--\')'
         print >>f, 'p2, =  ax.plot(t, r,\'k:\')'
 
-        print >>f, 'ax.set_label("', xaxislabel, '")'
+        print >>f, 'ax.set_xlabel("', xaxislabel, '")'
 
         print >>f, 'ax.set_ylabel("', yaxislabel, '")'
 
