@@ -17,7 +17,7 @@ class FT(AbstractModel):
         N = int(modelparams[1])
         L = float(modelparams[2])
         o = float(modelparams[3])
-        g = int(modelparams[4])
+        g = float(modelparams[4])
 
         P = int(params[0])
 
