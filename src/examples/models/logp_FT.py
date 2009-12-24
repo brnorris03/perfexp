@@ -18,14 +18,22 @@ class FT(AbstractModel):
         L = float(modelparams[2])
         o = float(modelparams[3])
         g = float(modelparams[4])
+        m = int(modelparams[5])
 
         P = int(params[0])
 
+# xeon specific
+#        if P > 4:
+#            tc = tc * 2
+
         term1 = tc * N/P * log(N,2)
         term2 = (P - 1) * (L + o)
-        term3 = (P - 2) * g
+        term3 = (P - 2) * m * g
 
         time = term1 + term2 + term3
+
+        if DEBUG == 1:
+            print 'Time: ', time
 
         return time
 
