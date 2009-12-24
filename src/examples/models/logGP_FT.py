@@ -12,21 +12,25 @@ class LogGPFT(AbstractModel):
         N = int(modelparams[1])
         L = float(modelparams[2])
         o = float(modelparams[3])
-        g = int(modelparams[4])
-        G = int(modelparams[5])
+        g = float(modelparams[4])
+        G = float(modelparams[5])
+        m = int(modelparams[6])
 
         P = int(params[0])        
-        n = float(N/3)
+ 
+# xeon specific       
+#        if tc > 4:
+#            tc = tc * 2
 
-        term1 = tc * n/P * log(n,2)
-        term2 = ((P-1) * o) + (tc * n * n * log(n,2))
-        term3 = ((P-1) * g) + (n * n * G) + L
-        term4 = o + (n/P -1) * max(term2, term3)
+        term1 = tc * N/P * N * log(N,2)
+        term2 = ((P-1) * o) + (tc * N/P * N * log(N,2))
+        term3 = ((P-1) * m * g) + (m * N/P * G) + L
+        term4 = o + (N/P -1) * max(term2, term3)
         term5 = (P - 1) * o
-        term6 = (P - 2) * g
-        term7 = n/P * n * G
+        term6 = (P - 2) * g * m
+        term7 = N/P * G * m
         term8 = term1 + term4 + term5 + term6 + term7 + L
-        term9 = tc * ((n*n)/(P))*n*log(n,2)*2        
+        term9 = tc * ((N/P))*N*log(N,2)        
 
         time = term8 + term9
 
