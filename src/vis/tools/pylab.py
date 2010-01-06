@@ -138,3 +138,24 @@ class Plotter(AbstractPlotter):
 
         print >>f, '\tf.close()\n'
 
+    def genPlot(self, xdata, ydata):
+        f=open(plotfilename,'a')
+        print >>f, '#!/usr/bin/env python'
+        print >>f, '\nfrom pylab import *'
+        xstring = '\nt = ['
+        for procs in xdata:
+            xstring += str(procs) +','
+        xstring += ']'
+        print >>f, xstring
+        ystring = '\ns = ['
+        for d in ydata:
+            ystring += str(d) + ','
+        ystring += ']'
+        print >>f, ystring
+        print >>f, '\nplot(t, s, linewidth=1.0)'
+        print >>f, '\nxlabel(" ' + xaxislabel +' ")'
+        print >>f, '\nylabel(" ' + yaxislabel + ' ")'
+        print >>f, '\ntitle(" ' + graphtitle + ' ")'
+        print >>f, '\ngrid(True)'
+        print >>f, '\nshow()'
+        f.close()
