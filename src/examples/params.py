@@ -44,6 +44,7 @@ graphtitle = 'FT: MPI, Tasks=16'
 mhz = '1.9e9'
 ptool = 'tau'
 l2cacheline = '64'
+plotfilename = 'plot.py'
 
 # Parameters for Models
 
