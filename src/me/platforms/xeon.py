@@ -6,27 +6,49 @@ from params import *
 from me.interfaces import AbstractPlatform
 
 from me.tools.tau import Collector as TAUCollector
+from me.tools.gprof import Collector as GprofCollector
 from storage.tools.tau import PerfDMFDB 
+from storage.tools.gprof import Gprof
 from analysis.interfaces import AbstractModel
 
 class Generic(AbstractPlatform):
 
     def moveData(self, src, dest):
     
-        DataCollector = TAUCollector()
+        DataCollector = GprofCollector()
         dataFormat = DataCollector.getDataFormat()
 
         if not os.path.exists(dest):
-        	os.makedirs(dest)
+            os.makedirs(dest)
 
         if dataFormat == 'profiles':
-        	moveCommand = 'mv ' + src + '/MULTI__P* ' + src + '/profile* ' + dest + '/'
-        elif dataFormat == 'psrun':    
-        	moveCommand = 'mv ' + src + '/*.xml ' + dest + '/'
+            moveCommand = 'mv ' + src + '/MULTI__P* ' + src + '/profile* ' + dest + '/'
 
-        if DEBUG==1: 
-        	print 'DEBUG:move performance data command: ', moveCommand
-        	commands.getstatusoutput(moveCommand)
+        	# moveCommand = 'mv ' + src + '/MULTI__P* ' + dest + '/'
+                # moveCommand2 = 'mv ' + src + '/profile* ' + dest + '/MULTI__' + counters[0] + '/'
+                # moveCommand3 = 'mv ' + dest + '/profile* ' + dest + '/MULTI__' + counters[0] + '/'
+
+            commands.getstatusoutput(moveCommand)
+                # commands.getstatusoutput(moveCommand2)
+                # commands.getstatusoutput(moveCommand3)
+                
+            if DEBUG==1: 
+                print 'DEBUG:move performance data command: ', moveCommand
+                print 'DEBUG:move performance data command: ', moveCommand2
+                print 'DEBUG:move performance data command: ', moveCommand3
+
+        elif dataFormat == 'psrun':    
+            moveCommand = 'mv ' + src + '/*.xml ' + dest + '/'
+            commands.getstatusoutput(moveCommand)
+            if DEBUG==1: 
+                print 'DEBUG:move performance data command: ', moveCommand
+                
+        elif dataFormat == 'gprof':
+            moveCommand = 'mv ' + src + '/gmon.out* ' + dest + '/'
+            commands.getstatusoutput(moveCommand)
+            if DEBUG==1: 
+                print 'DEBUG:move performance data command: ', moveCommand
+
 
     def runApp(self, perfCmd):
 
@@ -41,7 +63,7 @@ class Generic(AbstractPlatform):
                     os.environ['OMP_NUM_THREADS'] = t
                     cmd = cmdline 
                 elif pmodel == 'mpi':
-                    cmd = mpidir + '/mpirun -np ' + p + ' ' + cmdline + ' ' + o 
+                    cmd = mpidir + '/mpirun -np ' + p + ' ' + cmdline +  ' ' + o 
                 else:
                     cmd = cmdline  
 
@@ -99,7 +121,7 @@ class Generic(AbstractPlatform):
             for t in threads:
                 destdir = datadir + '/' + appname + '-' + expname + '-' + trialname + '-p' + p + 't' + t
                 tn = trialname + '-p' + p + '-t' + t
-                DB.load(destdir, tn)
+                DB.load(destdir, tn, p,t)
 
 
     def validateModel(self, model):
