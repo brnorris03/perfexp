@@ -16,6 +16,8 @@ class PerfExplorer(AbstractAnalyzer):
 
         analyzeCommand = 'perfexplorer -n -c '
         analyzeCommand += dbconfig + ' -i ' + os.getcwd() + '/analysisTAU.py'
+        cmd = 'chmod u+x plot.py'
+        commands.getstatusoutput(cmd)
         moveResultsCommand = 'mv ' + os.getcwd() + '/plot.py ' + resultsdir
         moveResultsCommand2 = 'mv ' + os.getcwd() + '/analysisTAU.py ' + resultsdir
 
