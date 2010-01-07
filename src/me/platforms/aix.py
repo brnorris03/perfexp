@@ -3,7 +3,8 @@
 import os, commands
 from params import *
 from me.tools.tau import Collector as TAUCollector
-from storage.tools.tau import PerfDMFDB 
+from me.tools.gprof import Collector as GprofCollector
+from storage.tools.gprof import Gprof 
 
 class BluePrint:
 
@@ -40,6 +41,8 @@ class BluePrint:
             		moveCommand = 'mv ' + src + '/MULTI__P* ' + src + '/profile* ' + dest + '/'
         	elif dataFormat == 'psrun':	
            		moveCommand = 'mv ' + src + '/*.xml ' + dest + '/'
+        	elif dataFormat == 'gprof':	
+           		moveCommand = 'mv ' + src + '/gmon* ' + dest + '/'
 
 		if DEBUG==1: 
         		print 'DEBUG:move performance data command: ', moveCommand
@@ -69,7 +72,9 @@ class BluePrint:
 		else:
 			cmd = cmdline
 
-       		if DEBUG == 1:
+       		cmd  = cmdline + str(p)
+
+		if DEBUG == 1:
            		print 'DEBUG: executing: ', cmd
        			print 'DEBUG: OMP_NUM_THREADS=', os.environ.get('OMP_NUM_THREADS')
 
@@ -126,13 +131,13 @@ class BluePrint:
 					tn = trialname + '-p' + p + 't' + t
 		                        #temporary fix
 
-					cpcmd = 'mv -f ' + datadir + '/' + appname + '-' + expname +'-' + tn + '/profile* ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/MULTI*'
-					if DEBUG == 1:
-						print 'copy profiles: ', cpcmd
-					commands.getstatusoutput(cpcmd)
+					# cpcmd = 'mv -f ' + datadir + '/' + appname + '-' + expname +'-' + tn + '/profile* ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/MULTI*'
+					# if DEBUG == 1:
+					#	print 'copy profiles: ', cpcmd
+					# commands.getstatusoutput(cpcmd)
 					
 
-					DB.load(destdir, tn)
+					DB.load(destdir, tn,p,t)
 		elif pmodel == 'mpi':	
 			for n in nodes:
 				for t in tasks_per_node:
@@ -140,13 +145,13 @@ class BluePrint:
 					tn = trialname + '-p' + n + 't' + t
 		                        #temporary fix
 					cpcmd = 'cp ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/profile* ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/MULTI*'
-					if DEBUG == 1:
-						print 'copy profiles: ', cpcmd
+					# if DEBUG == 1:
+					#	print 'copy profiles: ', cpcmd
 
 					commands.getstatusoutput(cpcmd)
-		
+					tn = trialname + '-p' + n + '-t' + t
 
-					DB.load(destdir, tn)
+					DB.load(destdir, tn, n,t)
 					
 	def validateModel(self, model):				
 		
