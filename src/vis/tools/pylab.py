@@ -76,8 +76,8 @@ class Plotter(AbstractPlotter):
         print >>f, data3
         print >>f, 'fig = plt.figure()'
         print >>f, 'ax = fig.add_subplot(111)'
-        print >>f, 'p1, = ax.plot(t, s, \'k--\')'
-        print >>f, 'p2, =  ax.plot(t, r,\'k:\')'
+        print >>f, 'p1, = ax.semilogx(t, s, \'k--\', basex=2)'
+        print >>f, 'p2, =  ax.semilogx(t, r,\'k:\', basex=2)'
 
         print >>f, 'ax.set_xlabel("', xaxislabel, '")'
 
