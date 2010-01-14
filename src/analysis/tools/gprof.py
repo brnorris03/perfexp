@@ -18,11 +18,11 @@ class Gprof(AbstractAnalyzer):
                     filename = datadir + '/' + appname + '-' + expname + '-' + trialname + '-' + 'p' + p +'t' + t + '/' + 'gprof.out'
                     f = file(filename)
                     for line in f:
-                        if programevent in line:
+                        if 'sample hit' in line:
                             break
                     words = line.split()
-   	            i = words.index(programevent)
-		    avgtime = float(words[i+1]) / int(p)	
+   	            i = words.index('seconds')
+		    avgtime = float(words[i-1]) / int(p)	
                     ydata.append(str(avgtime))
 
 	else:
@@ -31,11 +31,11 @@ class Gprof(AbstractAnalyzer):
                     filename = datadir + '/' + appname + '-' + expname + '-' + trialname + '-' + 'p' + p +'t' + t + '/' + 'gprof.out'
                     f = file(filename)
                     for line in f:
-                        if programevent in line:
+                        if 'sample hit' in line:
                             break
                     words = line.split()
-                    print words[1]
-                    ydata.append(words[1])
+                    i = words.index('seconds')
+                    ydata.append(str(float(words[i-1])))
 
         self.writeGeneratePlot(ydata)
                  
