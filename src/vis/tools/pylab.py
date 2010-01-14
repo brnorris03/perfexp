@@ -76,8 +76,8 @@ class Plotter(AbstractPlotter):
         print >>f, data3
         print >>f, 'fig = plt.figure()'
         print >>f, 'ax = fig.add_subplot(111)'
-        print >>f, 'p1, = ax.semilogx(t, s, \'k--\', basex=2)'
-        print >>f, 'p2, =  ax.semilogx(t, r,\'k:\', basex=2)'
+        print >>f, 'p1, = ax.loglog(t, s, \'k--\', basex=2, basey=2)'
+        print >>f, 'p2, =  ax.loglog(t, r,\'k:\', basex=2, basey=2)'
 
         print >>f, 'ax.set_xlabel("', xaxislabel, '")'
 
@@ -119,7 +119,7 @@ class Plotter(AbstractPlotter):
         print >>f, '\t\tystring += str(d) + \',\''
         print >>f, '\tystring += \']\''
         print >>f, '\tprint >>f, ystring'
-        print >>f, '\tprint >>f, \'\\nplot(t, s, linewidth=1.0)\''
+        print >>f, '\tprint >>f, \'\\nloglog(t, s, linewidth=1.0,basex=2, basey=2)\''
 
         #parameter: x-axis label                                         
 
@@ -152,7 +152,7 @@ class Plotter(AbstractPlotter):
             ystring += str(d) + ','
         ystring += ']'
         print >>f, ystring
-        print >>f, '\nplot(t, s, linewidth=1.0)'
+        print >>f, '\nloglog(t, s, linewidth=1.0,basex=2,basey=2)'
         print >>f, '\nxlabel(" ' + xaxislabel +' ")'
         print >>f, '\nylabel(" ' + yaxislabel + ' ")'
         print >>f, '\ntitle(" ' + graphtitle + ' ")'
