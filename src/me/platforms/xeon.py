@@ -7,6 +7,7 @@ from me.interfaces import AbstractPlatform
 
 from me.tools.tau import Collector as TAUCollector
 from me.tools.gprof import Collector as GprofCollector
+from me.tools.ltimer import Collector as LtimerCollector
 from storage.tools.tau import PerfDMFDB 
 from storage.tools.gprof import Gprof
 from analysis.interfaces import AbstractModel
@@ -15,7 +16,7 @@ class Generic(AbstractPlatform):
 
     def moveData(self, src, dest):
     
-        DataCollector = GprofCollector()
+        DataCollector = LtimerCollector()
         dataFormat = DataCollector.getDataFormat()
 
         if not os.path.exists(dest):
@@ -49,27 +50,30 @@ class Generic(AbstractPlatform):
             if DEBUG==1: 
                 print 'DEBUG:move performance data command: ', moveCommand
 
+        elif dataFormat == 'ltimer':
+            moveCommand = 'mv ' + src + '/ltimer.out* ' + dest + '/'
+            commands.getstatusoutput(moveCommand)
+            if DEBUG==1: 
+                print 'DEBUG:move performance data command: ', moveCommand
 
     def runApp(self, perfCmd):
 
-        DataCollector = TAUCollector()
+        DataCollector = LtimerCollector()
+        dataFormat = DataCollector.getDataFormat()
         DataCollector.setCounters()
-        cmd = ''
 
-        for p,o in map(None, processes, cmdlineopts):
+
+        for p in processes:
             for t in threads:
 
                 if pmodel == 'omp' or pmodel == 'mpi:omp':
                     os.environ['OMP_NUM_THREADS'] = t
-                    cmd = cmdline 
+                    cmd = perfCmd
+                    cmd += cmdline 
                 elif pmodel == 'mpi':
                     cmd = mpidir + '/mpirun -np ' + p + ' ' + cmdline +  ' ' + o 
                 else:
                     cmd = cmdline  
-
-                if DEBUG == 1:
-                    print 'DEBUG: executing: ', cmd
-                    print 'DEBUG: OMP_NUM_THREADS=', os.environ.get('OMP_NUM_THREADS')
 
                     # Run the application in the specified directory    
                 if not os.path.exists(workdir): os.makedirs(workdir)
@@ -82,6 +86,11 @@ class Generic(AbstractPlatform):
                 try: os.chdir(dest)
                 except Exception,e:
                     print >> sys.stderr, 'Exception in ExperimentDriver:  '+str(e)
+
+                if DEBUG == 1:
+                    print 'DEBUG: executing: ', cmd
+                    print 'DEBUG: OMP_NUM_THREADS=', os.environ.get('OMP_NUM_THREADS')
+ 
                 
                 if exemode == 'interactive':
                     app_output = os.popen(cmd)
@@ -139,4 +148,12 @@ class Generic(AbstractPlatform):
 		        xdata.append(P)
 		        ydata.append(result)
 
+        elif pmodel == 'omp':
+            for n in threads:
+                T = n
+                params.insert(0,T)
+                result = model.validate(params)
+                xdata.append(T)
+                ydata.append(result)
+                
         return xdata, ydata
