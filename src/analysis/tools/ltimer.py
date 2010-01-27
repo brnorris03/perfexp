@@ -6,7 +6,7 @@ from analysis.interfaces import AbstractAnalyzer
 from vis.tools.pylab import Plotter
 import commands, sys, os
 
-class Gprof(AbstractAnalyzer):
+class Ltimer(AbstractAnalyzer):
 
     def runAnalysis(self, metric):
 
@@ -28,14 +28,12 @@ class Gprof(AbstractAnalyzer):
 	else:
             for p in processes:
                 for t in threads:
-                    filename = datadir + '/' + appname + '-' + expname + '-' + trialname + '-' + 'p' + p +'t' + t + '/' + 'gprof.out'
+                    filename = datadir + '/' + appname + '-' + expname + '-' + trialname + '-' + 'p' + p +'t' + t + '/' + 'ltimer.out'
                     f = file(filename)
-                    for line in f:
-                        if 'sample hit' in line:
-                            break
-                    words = line.split()
-                    i = words.index('seconds')
-                    ydata.append(str(float(words[i-1])))
+                    line =f.readline()
+                    words = line.rsplit()
+                    words[0] = words[0].replace('user','')
+                    ydata.append(str(float(words[0])))
 
         self.writeGeneratePlot(ydata)
                  
