@@ -9,7 +9,7 @@ class Gprof(AbstractStorage):
 
     def load(self, destdir, trial, process, thread):
 
-        convertcmd = 'gprof ' + cmdline + process + ' ' + destdir + '/gmon.out >& ' + destdir + '/gprof.out'
+        convertcmd = 'gprof ' + cmdline + ' ' + destdir + '/gmon.out >& ' + destdir + '/gprof.out'
         if DEBUG == 1:
             print convertcmd
         commands.getstatusoutput(convertcmd)
