@@ -2,6 +2,9 @@
 
 from params import *
 import commands,os
+from numpy import mean, std, array
+from scipy import sqrt
+
 
 from vis.interfaces import AbstractPlotter
 
@@ -72,6 +75,22 @@ class Plotter(AbstractPlotter):
         index = text.find(search)
         index2 = text.find("\n", index)
         data3 = text[index:index2]
+
+        index3 = text.find("[", index)
+        index4 = text.find(",]", index)
+
+        data4 = text[index3+1:index4]
+
+        print data4
+
+        measured = data4.split(',')
+        measuredY = []
+        
+        for y in measured:
+            measuredY.append(float(y))
+
+        if DEBUG: 
+            self.computeError(measuredY, ydata)
 
         print >>f, data3
         print >>f, 'fig = plt.figure()'
@@ -159,3 +178,19 @@ class Plotter(AbstractPlotter):
         print >>f, '\ngrid(True)'
         print >>f, '\nshow()'
         f.close()
+
+    def computeError(self, measured, modeled):
+
+        measured = array(measured)
+        modeled = array(modeled)
+        n = len(measured)
+
+        print measured
+        print modeled
+        # calculate residuals (observed - predicted)                              
+        mserr = sum((modeled-measured)**2) / n   # Total Sum of Squares                    
+        sterr = sqrt(mserr)
+    
+        # compute the mean square error (variance) and standard error (root of var), R2 and R                                                                  
+        print 'Mean square error: ', mserr
+        print 'Standard error: ', sterr
