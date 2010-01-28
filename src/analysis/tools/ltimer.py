@@ -4,26 +4,32 @@ from params import *
 from analysis.metrics.time import WallClock
 from analysis.interfaces import AbstractAnalyzer
 from vis.tools.pylab import Plotter
-import commands, sys, os
+import commands, sys, os, dircache
 
 class Ltimer(AbstractAnalyzer):
 
     def runAnalysis(self, metric):
 
         ydata = []
+	
+	if pmodel == 'omp':
+	    
+	    for p in  nodes:
+                for t in threads:
+                    dirname = datadir + '/' + appname + '-' + expname + '-' + trialname + '-' + 'p' + p +'t' + t 
+		    files = dircache.listdir(dirname)
+                    for ff in files:
+        		if ff.find('.err'):
+                		break
 
-	if nodes and tasks_per_node:
-	    for p,o in map(None, nodes, cmdlineopts):
-                for t in tasks_per_node:
-                    filename = datadir + '/' + appname + '-' + expname + '-' + trialname + '-' + 'p' + p +'t' + t + '/' + 'gprof.out'
+                    filename = datadir + '/' + appname + '-' + expname + '-' + trialname + '-' + 'p' + p +'t' + t + '/' + ff
                     f = file(filename)
-                    for line in f:
-                        if 'sample hit' in line:
-                            break
-                    words = line.split()
-   	            i = words.index('seconds')
-		    avgtime = float(words[i-1]) / int(p)	
-                    ydata.append(str(avgtime))
+                    lines = f.read().split('\n')
+
+                    lines[1] = lines[1].replace('Real','')
+                    lines[1] = lines[1].replace(' ','')
+                    ydata.append(str(float(lines[1])))
+
 
 	else:
             for p in processes:
