@@ -11,12 +11,18 @@ cmdlineopts = ['-P 1 1 1', '-P 1 1 2', '-P 1 2 2', '-P 2 2 2']
 threads = ['2']
 processes = ['1','2','4','8']
 nodes = ['1','2','4','8','16','32','64']
-# nodes = ['64']
 tasks_per_node =  ['16']
 pmodel = 'mpi'
 instrumentation = 'compiletime'
 exemode = 'interactive'
 batchcmd = 'llsubmit'
+jobname = 'mpi-opt-kraken'
+walltime = '00:20:00'
+maxprocessor = '48'
+accountname = 'TG-ASC050039N'
+buffersize = '125829120'
+msgsize = '64000'
+stacksize = '10000000'
 
 # Parameters for MeasurementEnvironment
 
