@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-from params import *
 import os
 from me.interfaces import AbstractCollector
 

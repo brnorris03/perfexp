@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import os, commands
-from params import *
 
 from me.interfaces import AbstractPlatform
 

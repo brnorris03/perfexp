@@ -1,13 +1,12 @@
 #!/usr/bin/python
 
-from params import *
 import os
 from me.interfaces import AbstractCollector
 
 class Collector(AbstractCollector):
 
     def setCounters(self):
-       pass
+        pass
 			
     def getCommand(self):
 

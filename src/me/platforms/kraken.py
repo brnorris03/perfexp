@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import os, commands
-from params import *
 from me.tools.tau import Collector as TAUCollector
 from me.tools.gprof import Collector as GprofCollector
 from me.tools.notimer import Collector as NoTimer

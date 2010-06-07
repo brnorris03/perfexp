@@ -1,15 +1,20 @@
 #!/usr/bin/python
 
-from params import *
-
 from me.platforms.aix import BluePrint
 from me.tools.tau import Collector as TAUCollector 
+from me.tools.notimer import Collector as NoTimer 
+from me.params import Params
 import os, commands
 	
 def main():
 	
+	myParams = Params()
+
+	myParams._processConfigFile()
+
 	measurementEnvironment = BluePrint()
-	dataCollector = TAUCollector()
+
+	dataCollector = NoTimer()
 	
 	dataCollector.setCounters()
 	perfCmd = dataCollector.getCommand()
