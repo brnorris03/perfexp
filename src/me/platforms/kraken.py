@@ -5,6 +5,8 @@ from me.tools.tau import Collector as TAUCollector
 from me.tools.gprof import Collector as GprofCollector
 from me.tools.notimer import Collector as NoTimer
 from storage.tools.gprof import Gprof 
+from me.params import MEParams
+from storage.params import DBParams
 
 class Kraken:
 
@@ -16,7 +18,7 @@ class Kraken:
 		print >>f, '#PBS -N ' + jobname
 		print >>f, '#PBS -j oe'
 		maxprocs = int(node) * int(tasks_per_node)
-		print >>f, '#PBS -l walltime=' + walltime + ',size=' + str(maxprocs)
+		print >>f, '#PBS -l walltime=' + walltime + ',size=' + maxprocs
 		print >>f, '#PBS -A ' + accountname
 		print >>f, 'date'
 		print >>f, 'export MPICH_UNEX_BUFFER_SIZE=' + buffersize
@@ -47,71 +49,71 @@ class Kraken:
 		elif dataFormat == 'notimer':
 		        moveCommand = ''
 			
-		if DEBUG==1: 
+		if MEParams.meparams['DEBUG']=="1": 
         		print 'DEBUG:move performance data command: ', moveCommand
        		commands.getstatusoutput(moveCommand)
 
 	def runApp(self, perfCmd):
 
-		if pmodel == 'omp':
-			for p in nodes:
-				for t in threads:
+		if MEParams.meparams['pmodel'] == "omp":
+			for p in MEParams.meparams['nodes'].split():
+				for t in MEParams.meparams['threads'].split():
 					self.runit(p,t)
-		if pmodel == 'mpi': 
-   			for p in nodes:
-        			for t in tasks_per_node:
+		if MEParams.meparams['pmodel'] == "mpi": 
+   			for p in MEParams.meparams['nodes'].split():
+        			for t in MEParams.meparams['tasks_per_node'].split():
 					self.runit(p,t)
-		if pmodel == 'mpi:omp':	                
-			for p in nodes:
-				for t in threads:
+		if MEParams.meparams['pmodel'] == "mpi:omp":	                
+			for p in MEParams.meparams['nodes'].split():
+				for t in MEParams.meparams['threads'].split():
 					self.runit(p,t)
 
 	def runit(self,p,t):
 
-       		cmd  = cmdline 
+       		cmd  = MEParams.meparams['cmdline'] 
 
-		if DEBUG == 1:
+		if MEParams.meparams['DEBUG'] == "1":
            		print 'DEBUG: executing: ', cmd
        			print 'DEBUG: OMP_NUM_THREADS=', os.environ.get('OMP_NUM_THREADS')
 
                	# Run the application in the specified directory	
-       		if not os.path.exists(workdir): os.makedirs(workdir)
-       		try: os.chdir(workdir)
+       		if not os.path.exists(MEParams.meparams['workdir']): os.makedirs(MEParams.meparams['workdir'])
+       		try: os.chdir(MEParams.meparams['workdir'])
        		except Exception,e:
                		print >> sys.stderr, 'Exception in ExperimentDriver:  '+str(e)
-       		dest = datadir + '/' + appname + '-' + expname + '-' + trialname + '-p' + p + 't' + t 
+       		dest = DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + p + 't' + t 
        		if not os.path.exists(dest): os.makedirs(dest)
        		try: os.chdir(dest)
        		except Exception,e:
                		print >> sys.stderr, 'Exception in ExperimentDriver:  '+str(e)
 				
-		if exemode == 'interactive':
+		if MEParams.meparams['exemode'] == "interactive":
        			app_output = os.popen(cmd)
 			fp = open("expout", "w")
        			print >>fp,  app_output.read()
 			fp.close()
-			if DEBUG == 1:
+			if MEParams.meparams['DEBUG'] == "1":
 				print 'DEBUG: interactive command: ', cmd 
-		elif exemode == 'batch':
-			filename = workdir + '/' + 'mpi-p'+ str(p) + '-t' + str(t) +'.pbs'
+		elif MEParams.meparams['exemode'] == "batch":
+			filename = MEParams.meparams['workdir'] + '/' + 'mpi-p'+ p + '-t' + t +'.pbs'
 			self.genBatchScript(p, t, filename, cmd, dest)
 			try: os.path.exists(filename)
                		except Exception,e:
        	        		print >> sys.stderr, 'Exception: Batch script does not exist  '+str(e)
-			mcmd = 'mv ' + workdir + '/' + 'mpi-p'+ str(p) + '-t' + str(t) + '.pbs ' + dest + '/'
+			mcmd = 'mv ' + MEParams.meparams['workdir'] + '/' + 'mpi-p'+ p + '-t' + t + '.pbs ' + dest + '/'
 			commands.getstatusoutput(mcmd)
-			if DEBUG == 1: 
+			if MEParams.meparams['DEBUG'] == "1": 
 				print 'DEBUG: move ll files: ', mcmd
 
-			cmd = batchcmd + ' ' + dest + '/' + 'mpi-p'+ str(p) + '-t' + str(t) + '.pbs ' 
-			if DEBUG == 1:
+			cmd = MEParams.meparams['batchcmd'] + ' ' + dest + '/' + 'mpi-p'+ p + '-t' + t + '.pbs ' 
+			if MEParams.meparams['DEBUG'] == "1":
 				print 'DEBUG: batch submit command: ', cmd
        			app_output = os.popen(cmd)
 			fp = open("expout", "w")
        			print >>fp,  app_output.read()
 			fp.close()
 
-		self.moveData(workdir, dest)
+		self.moveData(MEParams.meparams['workdir'], dest)
 
         
 	def loadTrials(self, storage):
@@ -119,12 +121,12 @@ class Kraken:
 		#DB = PerfDMFDB()
 		DB = storage
 
-		if pmodel == 'omp':
-			for p in nodes:
-				for t in threads:
+		if MEParams.meparams['pmodel'] == "omp":
+			for p in MEParams.meparams['nodes'].split():
+				for t in MEParams.meparams['threads'].split():
 
-					destdir = datadir + '/' + appname + '-' + expname + '-' + trialname + '-p' + p + 't' + t
-					tn = trialname + '-p' + p + 't' + t
+					destdir = DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + p + 't' + t
+					tn = DBParams.dbparams['trialname'] + '-p' + p + 't' + t
 		                        #temporary fix
 
 					# cpcmd = 'mv -f ' + datadir + '/' + appname + '-' + expname +'-' + tn + '/profile* ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/MULTI*'
@@ -134,18 +136,18 @@ class Kraken:
 					
 
 					DB.load(destdir, tn,p,t)
-		elif pmodel == 'mpi':	
-			for n in nodes:
-				for t in tasks_per_node:
-					destdir = datadir + '/' + appname + '-' + expname + '-' + trialname + '-p' + n + 't' + t
-					tn = trialname + '-p' + n + 't' + t
+		elif MEParams.meparams['pmodel'] == "mpi":	
+			for n in MEParams.meparams['nodes'].split():
+				for t in MEParams.meparams['tasks_per_node'].split():
+					destdir = DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + n + 't' + t
+					tn = DBParams.dbparams['trialname'] + '-p' + n + 't' + t
 		                        #temporary fix
-					cpcmd = 'cp ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/profile* ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/MULTI*'
+					cpcmd = 'cp ' + DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + tn + '/profile* ' + DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + tn + '/MULTI*'
 					# if DEBUG == 1:
 					#	print 'copy profiles: ', cpcmd
 
 					commands.getstatusoutput(cpcmd)
-					tn = trialname + '-p' + n + '-t' + t
+					tn = DBParams.dbparams['trialname'] + '-p' + n + '-t' + t
 
 					DB.load(destdir, tn, n,t)
 					
@@ -156,9 +158,9 @@ class Kraken:
 		xdata = []
 		ydata = []
 		
-		if pmodel == 'mpi':
-			for n in nodes:
-				for t in tasks_per_node:
+		if MEParams.meparams['pmodel'] == "mpi":
+			for n in MEParams.meparams['nodes'].split():
+				for t in MEParams.meparams['tasks_per_node'].split():
 
 					P = int(n) * int(t)
 					params.insert(0,P)

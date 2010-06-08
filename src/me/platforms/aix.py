@@ -1,9 +1,12 @@
+
 #!/usr/bin/python
 
-import os, commands
+import os, commands, sys
 from me.tools.tau import Collector as TAUCollector
 from me.tools.gprof import Collector as GprofCollector
 from storage.tools.gprof import Gprof 
+from me.params import MEParams
+from storage.params import DBParams
 
 class BluePrint:
 
@@ -14,12 +17,12 @@ class BluePrint:
 		print >>f, '#@ job_type = parallel'
 		print >>f, '#@ environment = COPY_ALL'
 		print >>f, '#@ class = medium'
-		if pmodel == 'omp':
+		if MEParams.meparams['pmodel'] == "omp":
 			tasks_per_node = 1
-		print >>f, '#@ tasks_per_node = ' + str(tasks_per_node)
-		print >>f, '#@ node = ' + str(node)
+		print >>f, '#@ tasks_per_node = ' + tasks_per_node
+		print >>f, '#@ node = ' + node
 		print >>f, '#@ network.MPI_LAPI = sn_all,not_shared,US'
-		print >>f, '#@ wall_clock_limit = ' + maxtime
+		print >>f, '#@ wall_clock_limit = ' + MEParams.meparams['maxtime']
 		print >>f, '#@ output = $(host).$(jobid).$(stepid).out'
 		print >>f, '#@ error = $(host).$(jobid).$(stepid).err'
 		print >>f, '#@ queue'
@@ -43,78 +46,73 @@ class BluePrint:
         	elif dataFormat == 'gprof':	
            		moveCommand = 'mv ' + src + '/gmon* ' + dest + '/'
 
-		if DEBUG==1: 
+		if MEParams.meparams['DEBUG']=="1": 
         		print 'DEBUG:move performance data command: ', moveCommand
        		commands.getstatusoutput(moveCommand)
 
 	def runApp(self, perfCmd):
 
-		if pmodel == 'omp':
-			for p in nodes:
-				for t,o in map(None, threads,cmdlineopts):
+		if MEParams.meparams['pmodel'] == "omp":
+			for p in MEParams.meparams['nodes'].split():
+				for t in MEParams.meparams['threads'].split():
 					os.environ['OMP_NUM_THREADS'] = t
 					self.runit(p,t)
-		if pmodel == 'mpi': 
-   			for p,o in map(None, nodes, cmdlineopts):
-        			for t in tasks_per_node:
-					self.runit(p,t,o)
-		if pmodel == 'mpi:omp':	                
-			for p,o in map(None, nodes, cmdlineopts):
-				for t in threads:
+		if MEParams.meparams['pmodel'] == "mpi": 
+   			for p in MEParams.meparams['nodes'].split():
+        			for t in MEParams.meparams['tasks_per_node'].split():
+					self.runit(p,t)
+		if MEParams.meparams['pmodel'] == "mpi:omp":	                
+			for p in MEParams.meparams['nodes'].split():
+				for t in MEParams.meparams['threads'].split():
 					os.environ['OMP_NUM_THREADS'] = t
-					self.runit(p,t,o)
+					self.runit(p,t)
 
-	def runit(self,p,t,o):
+	def runit(self,p,t):
 
-		if o != None:				
-      			cmd = cmdline + ' ' + o
-		else:
-			cmd = cmdline
-
-       		cmd  = cmdline + str(p)
-
-		if DEBUG == 1:
+        	cmd = MEParams.meparams['cmdline']
+       	
+		if MEParams.meparams['DEBUG'] == "1":
            		print 'DEBUG: executing: ', cmd
        			print 'DEBUG: OMP_NUM_THREADS=', os.environ.get('OMP_NUM_THREADS')
 
                	# Run the application in the specified directory	
-       		if not os.path.exists(workdir): os.makedirs(workdir)
-       		try: os.chdir(workdir)
+       		if not os.path.exists(MEParams.meparams['workdir']): os.makedirs(MEParams.meparams['workdir'])
+       		try: os.chdir(MEParams.meparams['workdir'])
        		except Exception,e:
                		print >> sys.stderr, 'Exception in ExperimentDriver:  '+str(e)
-       		dest = datadir + '/' + appname + '-' + expname + '-' + trialname + '-p' + p + 't' + t 
+       		dest = DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + p + 't' + t 
        		if not os.path.exists(dest): os.makedirs(dest)
        		try: os.chdir(dest)
        		except Exception,e:
                		print >> sys.stderr, 'Exception in ExperimentDriver:  '+str(e)
 				
-		if exemode == 'interactive':
+		if MEParams.meparams['exemode'] == "interactive":
        			app_output = os.popen(cmd)
 			fp = open("expout", "w")
        			print >>fp,  app_output.read()
 			fp.close()
-			if DEBUG == 1:
+			if MEParams.meparams['DEBUG'] == "1":
 				print 'DEBUG: interactive command: ', cmd 
-		elif exemode == 'batch':
-			filename = workdir + '/' + 'mpi-p'+ str(p) + '-t' + str(t) +'.ll'
+		elif MEParams.meparams['exemode'] == "batch":
+			filename = MEParams.meparams['workdir'] + '/' + 'mpi-p'+ p + '-t' + t +'.ll'
 			self.genBatchScript(p, t, filename, cmd, dest)
 			try: os.path.exists(filename)
                		except Exception,e:
        	        		print >> sys.stderr, 'Exception: Batch script does not exist  '+str(e)
-			mcmd = 'mv ' + workdir + '/' + 'mpi-p'+ str(p) + '-t' + str(t) + '.ll ' + dest + '/'
+			mcmd = 'mv ' + MEParams.meparams['workdir'] + '/' + 'mpi-p'+ p + '-t' + t + '.ll ' + dest + '/'
 			commands.getstatusoutput(mcmd)
-			if DEBUG == 1: 
+			if MEParams.meparams['DEBUG'] == "1": 
 				print 'DEBUG: move ll files: ', mcmd
 
-			cmd = batchcmd + ' ' + dest + '/' + 'mpi-p'+ str(p) + '-t' + str(t) + '.ll ' 
-			if DEBUG == 1:
+			cmd = MEParams.meparams['batchcmd'] + ' ' + dest + '/' + 'mpi-p'+ p + '-t' + t + '.ll ' 
+			if MEParams.meparams['DEBUG'] == "1":
 				print 'DEBUG: batch submit command: ', cmd
        			app_output = os.popen(cmd)
 			fp = open("expout", "w")
        			print >>fp,  app_output.read()
 			fp.close()
 
-		self.moveData(workdir, dest)
+		self.moveData(MEParams.meparams['workdir'], dest)
 
         
 	def loadTrials(self, storage):
@@ -122,12 +120,12 @@ class BluePrint:
 		#DB = PerfDMFDB()
 		DB = storage
 
-		if pmodel == 'omp':
-			for p in nodes:
-				for t in threads:
+		if MEParams.meparams['pmodel'] == "omp":
+			for p in MEParams.meparams['nodes'].split():
+				for t in MEParams.meparams['threads'].split():
 
-					destdir = datadir + '/' + appname + '-' + expname + '-' + trialname + '-p' + p + 't' + t
-					tn = trialname + '-p' + p + 't' + t
+					destdir = DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + p + 't' + t
+					tn = DBParams.dbparams['trialname'] + '-p' + p + 't' + t
 		                        #temporary fix
 
 					# cpcmd = 'mv -f ' + datadir + '/' + appname + '-' + expname +'-' + tn + '/profile* ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/MULTI*'
@@ -137,18 +135,18 @@ class BluePrint:
 					
 
 					DB.load(destdir, tn,p,t)
-		elif pmodel == 'mpi':	
-			for n in nodes:
-				for t in tasks_per_node:
-					destdir = datadir + '/' + appname + '-' + expname + '-' + trialname + '-p' + n + 't' + t
-					tn = trialname + '-p' + n + 't' + t
+		elif MEParams.meparams['pmodel'] == "mpi":	
+			for n in MEParams.meparams['nodes'].split():
+				for t in MEParams.meparams['tasks_per_node'].split():
+					destdir = DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + n + 't' + t
+					tn = DBParams.dbparams['trialname'] + '-p' + n + 't' + t
 		                        #temporary fix
-					cpcmd = 'cp ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/profile* ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/MULTI*'
+					cpcmd = 'cp ' + DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + tn + '/profile* ' + DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + tn + '/MULTI*'
 					# if DEBUG == 1:
 					#	print 'copy profiles: ', cpcmd
 
 					commands.getstatusoutput(cpcmd)
-					tn = trialname + '-p' + n + '-t' + t
+					tn = DBParams.dbparams['trialname'] + '-p' + n + '-t' + t
 
 					DB.load(destdir, tn, n,t)
 					
@@ -159,9 +157,9 @@ class BluePrint:
 		xdata = []
 		ydata = []
 		
-		if pmodel == 'mpi':
-			for n in nodes:
-				for t in tasks_per_node:
+		if MEParams.meparams['pmodel'] == "mpi":
+			for n in MEParams.meparams['nodes'].split():
+				for t in MEParams.meparams['tasks_per_node'].split():
 
 					P = int(n) * int(t)
 					params.insert(0,P)

@@ -1,12 +1,15 @@
 #!/usr/bin/python
 
-from params import *
 from storage.tools.tau import PerfDMFDB 
 from me.platforms.aix import BluePrint
-
+from storage.params import DBParams as Params
+  
 def main():
               
     print 'loading data\n'
+
+    myParams = Params()
+    myParams._processConfigFile		
 
     mEnv = BluePrint()
     mEnv.loadTrials(storage = PerfDMFDB())

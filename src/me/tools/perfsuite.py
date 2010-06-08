@@ -1,6 +1,7 @@
 #!/usr/bin/python                                                           
 import os
 from me.interfaces import AbstractCollector
+from me.params import MEParams
 
 class Collector(AbstractCollector):
 
@@ -11,8 +12,9 @@ class Collector(AbstractCollector):
         print >>f, '<?xml version="1.0" encoding="UTF-8" ?>'
         print >>f, '<ps_hwpc_eventlist class="PAPI">'
 
-        for i in range (0, len(counters)):
-            print >>f,  '<ps_hwpc_event type="preset" name="' + counters[i] + '" />'
+	myCounters = MEParams.meparams['counters'].split()
+        for i in range (0, len(myCounters)):
+            print >>f,  '<ps_hwpc_event type="preset" name="' + myCounters[i] + '" />'
 
         print >>f, '</ps_hwpc_eventlist>'
 
@@ -21,12 +23,12 @@ class Collector(AbstractCollector):
 
     def getCommand(self):
 
-        if instrumentation == 'runtime':
-            if pmodel == 'omp':
+        if MEParams.meparams['instrumentation'] == "runtime":
+            if MEParams.meparams['pmodel'] == "omp":
                 cmd = 'psrun -p '
-            elif pmodel == 'mpi':
+            elif MEParams.meparams['pmodel'] == "mpi":
                 cmd = 'psrun -f '
-            elif pmodel == 'mpi:omp':
+            elif MEParams.meparams['pmodel'] == "mpi:omp":
                 cmd = 'psrun -f -p '
             else:
                 cmd = 'psrun '

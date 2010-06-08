@@ -1,13 +1,13 @@
 #!/usr/bin/python
 
-from params import *
+
 from analysis.tools.tau import PerfExplorer
 from analysis.metrics.time import WallClock
 from analysis.metrics.memory import L2BW
 from analysis.metrics.cpu import MFLIPS
 
 def main():
-    
+ 
     try: 
         metric = WallClock(params=metricparams)
     except: 
