@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
 from math import *
-from params import * 
 from analysis.tools.tau import PerfExplorer 
 from analysis.interfaces import AbstractModel 
+from examples.models.params import RAParams
 
 class RA(AbstractModel):
     '''Model for RandomAccess'''
@@ -13,10 +13,10 @@ class RA(AbstractModel):
     
     def validate(self, params):
 
-        rc = float(modelparams[0])
-        lc = float(modelparams[1])
+        rc = float(RAParams.modparams['rc']
+        lc = float(RAParams.modparams['lc']
         P = int(params[0])
-        numupdates = float(modelparams[2])
+        numupdates = float(RAParams.modparams['numupdates'])
         
         if P == 0:
             remoteupdates = 0

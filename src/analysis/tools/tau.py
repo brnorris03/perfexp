@@ -1,8 +1,10 @@
 #!/usr/bin/python
 
-from params import *
 from analysis.metrics.time import WallClock
 from analysis.interfaces import AbstractAnalyzer
+from analysis.params import ANSParams
+from storage.params import DBParams
+from me.params import MEParams
 
 import commands, sys, os
 
@@ -15,11 +17,11 @@ class PerfExplorer(AbstractAnalyzer):
         f.close()
 
         analyzeCommand = 'perfexplorer -n -c '
-        analyzeCommand += dbconfig + ' -i ' + os.getcwd() + '/analysisTAU.py'
+        analyzeCommand += DBParams.dbparams['dbconfig'] + ' -i ' + os.getcwd() + '/analysisTAU.py'
         cmd = 'chmod u+x plot.py'
         commands.getstatusoutput(cmd)
-        moveResultsCommand = 'mv ' + os.getcwd() + '/plot.py ' + resultsdir
-        moveResultsCommand2 = 'mv ' + os.getcwd() + '/analysisTAU.py ' + resultsdir
+        moveResultsCommand = 'mv ' + os.getcwd() + '/plot.py ' + ANSParams.ansparams['resultsdir']
+        moveResultsCommand2 = 'mv ' + os.getcwd() + '/analysisTAU.py ' + ANSParams.ansparams['resultsdir']
 
         print 'debug:analysis command: ', analyzeCommand
         print 'debug: move results command: ', moveResultsCommand
@@ -132,13 +134,13 @@ class PerfExplorer(AbstractAnalyzer):
         print >>f, '\tprint >>f, \'\\nplot(t, s, linewidth=1.0)\''
 
         #parameter: x-axis label                                                 
-        print >>f, '\tprint >>f, \'\\nxlabel("', xaxislabel, '")\''
+        print >>f, '\tprint >>f, \'\\nxlabel("', ANSParams.ansparams['xaxislabel'], '")\''
 
         #parameter: y-axis label                                                 
-        print >>f, '\tprint >>f, \'\\nylabel("', yaxislabel, '")\''
+        print >>f, '\tprint >>f, \'\\nylabel("', ANSParams.ansparams['yaxislabel'], '")\''
 
         #parameter: graph title                                                  
-        print >>f, '\tprint >>f, \'\\ntitle("', graphtitle,'")\''
+        print >>f, '\tprint >>f, \'\\ntitle("', ANSParams.ansparams['graphtitle'],'")\''
 
         print >>f, '\tprint >>f, \'\\ngrid(True)\''
         print >>f, '\tprint >>f, \'\\nshow()\''

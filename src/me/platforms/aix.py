@@ -152,15 +152,13 @@ class BluePrint:
 					
 	def validateModel(self, model):				
 		
-
 		params = []
 		xdata = []
 		ydata = []
-		
+
 		if MEParams.meparams['pmodel'] == "mpi":
 			for n in MEParams.meparams['nodes'].split():
 				for t in MEParams.meparams['tasks_per_node'].split():
-
 					P = int(n) * int(t)
 					params.insert(0,P)
 					result = model.validate(params)

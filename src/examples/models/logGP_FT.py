@@ -1,20 +1,20 @@
 #!/usr/bin/python
 
 from math import *
-from params import * 
 from analysis.interfaces import AbstractModel 
+from examples.models.params import LogGPFTParams
 
 class LogGPFT(AbstractModel):
 
     def validate(self,params):
 
-        tc = float(modelparams[0])
-        N = int(modelparams[1])
-        L = float(modelparams[2])
-        o = float(modelparams[3])
-        g = float(modelparams[4])
-        G = float(modelparams[5])
-        m = int(modelparams[6])
+        tc = float(LogGPFTParams.modparams['tc'])
+        N = int(LogGPFTParams.modparams['N'])
+        L = float(LogGPFTParams.modparams['L'])
+        o = float(LogGPFTParams.modparams['o'])
+        g = float(LogGPFTParams.modparams['g'])
+        G = float(LogGPFTParams.modparams['G'])
+        m = int(LogGPFTParams.modparams['m'])
 
         P = int(params[0])        
  

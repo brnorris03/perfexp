@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
-from params import * 
-
 from analysis.interfaces import AbstractMetric
-
+from analysis.params import ANSParams
+from storage.params import DBParams
+from me.params import MEParams
 import sys
 
 class MFLIPS(AbstractMetric):
@@ -42,7 +42,7 @@ def glue():
             extracted = extractor.processData().get(0)
             node_count = int(tr.getField('@PROCS@'))
 '''
-        if ptool.lower() == 'perfsuite': 
+        if ANSParams.ansparams['ptool'].lower() == "perfsuite": 
             buf += '''
             node_count -= 1
             '''
@@ -74,13 +74,13 @@ def glue():
     return
 '''
         # Specialize the template
-        buf = buf.replace('@APPNAME@',appname)
-        if pmodel == 'mpi':
+        buf = buf.replace('@APPNAME@',DBParams.dbparams['appname'])
+        if MEParams.meparams['pmodel'] == "mpi":
             buf = buf.replace('@PROCS@','node_count')
         else:
             buf = buf.replace('@PROCS@','threads_per_context')
-        buf = buf.replace('@PROGRAM_EVENT@',programevent)
-        buf = buf.replace('@MHZ@',str(mhz))
+        buf = buf.replace('@PROGRAM_EVENT@',ANSParams.ansparams['programevent'])
+        buf = buf.replace('@MHZ@',ANSParams.ansparams['mhz'])
         if analyzer:
             buf = buf.replace('@SCALING_FACTOR@',analyzer.getScalingFactor())
         else:

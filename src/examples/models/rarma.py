@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
 from math import *
-from params import * 
 from analysis.tools.tau import PerfExplorer 
 from analysis.interfaces import AbstractModel 
+from examples.models.params import RARMAParams
 
 class RARMA(AbstractModel):
     '''Model for RandomAccess'''
@@ -12,14 +12,15 @@ class RARMA(AbstractModel):
         pass
     
     def validate(self, params):
+        
 
-        tn = float(modelparams[0])
-        tg = float(modelparams[1])
-        tu = float(modelparams[2])
-        tl = float(modelparams[3])
-        ta = float(modelparams[4])
-        m = float(modelparams[5])
-        tul = float(modelparams[6])
+        tn = float(RARMAParams.modparams['tn'])
+        tg = float(RARMAParams.modparams['tg'])
+        tu = float(RARMAParams.modparams['tu'])
+        tl = float(RARMAParams.modparams['tl'])
+        ta = float(RARMAParams.modparams['ta'])
+        m = float(RARMAParams.modparams['m'])
+        tul = float(RARMAParams.modparams['tul'])
 
         P = int(params[0])
 
@@ -35,7 +36,7 @@ class RARMA(AbstractModel):
 
         gups = (P *tn )/((tn *(tg + tu)) + (remoteupdates*(tl + (ta*m) + tul))) 
 
-        if DEBUG == 1:
+        if RARMAParams.modparams['DEBUG'] == "1":
             print 'GUPS: ', gups
 
         return gups

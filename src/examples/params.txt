@@ -8,10 +8,10 @@ workdir = /u/home/ac/vtbui/projects/pmodels/benchmarks2/benchmarks/randomaccess/
 mpidir = 
 cmdlineopts = 
 cmdline = poe /u/home/ac/vtbui/projects/pmodels/benchmarks2/benchmarks/randomaccess/hpcc/mpi-omp-pthreads/./ra_rma
-threads = 1 2 4 8 16
-processes = 1
-nodes = 1
-tasks_per_node = 1 2
+threads = 1
+processes = 1 2 4 8 16 32 64
+nodes = 1 2 4 8 16 32 64
+tasks_per_node = 1 
 pmodel = mpi
 instrumentation = compiletime
 exemode = batch
@@ -28,7 +28,7 @@ counters = PAPI_TOT_CYC
 
 [DataManager]
 
-datadir = /u/home/ac/vtbui/projects/pmodels/large/run3
+datadir = /home/vbui/projects/pmodels/scale-test2/scale-test/run16
 appname =  ra
 expname = ra-bp-mpi
 trialname = ra-notimer-mpi
@@ -38,25 +38,29 @@ dbconfig = benchmarks
 
 [Analysis]
 
-resultsdir = /homes/vbui/projects/benchmarks/ft-c
+resultsdir = /home/vbui/projects/pmodels/scale-test2/scale-test/run16
 programevent = .TAU application
 metric = time.WallClock
 metricparams = PAPI_TOT_CYC
 xaxislabel = MPI Processes
-yaxislabel = Time (secs)
-graphtitle = FT: MPI, Tasks=16
+yaxislabel = GUPS
+graphtitle = Test RandomAccess
 mhz = 1.9e9
 ptool = tau
 l2cacheline = 64
 plotfilename = plot.py
 
 [Models]
-
-modelparams = 0.1 100 4 4 5 6
+tn = 8388608
+tg = 7.4e-7
+tu = 8.1e-7
+tl = 6.2e-6
+ta = 1.7e-6
+m = 8
+tul = 20.6e-6 
 legend = Measured LogP
 
 
 
 
 
-5A

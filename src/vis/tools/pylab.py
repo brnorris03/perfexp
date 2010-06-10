@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
-from params import *
 import commands,os
 from numpy import mean, std, array
 from scipy import sqrt
-
+from analysis.params import ANSParams
+from examples.models.params import GENParams
 
 from vis.interfaces import AbstractPlotter
 
@@ -39,8 +39,8 @@ class Plotter(AbstractPlotter):
         commands.getstatusoutput(cmd)
         cmd = 'chmod u+x model-plot.py'
         commands.getstatusoutput(cmd)
-        moveResultsCommand = 'mv ' + os.getcwd() + '/model.py ' + resultsdir
-        moveResultsCommand2 = 'mv ' + os.getcwd() + '/model-plot.py ' + resultsdir
+        moveResultsCommand = 'mv ' + os.getcwd() + '/model.py ' + ANSParams.ansparams['resultsdir']
+        moveResultsCommand2 = 'mv ' + os.getcwd() + '/model-plot.py ' + ANSParams.ansparams['resultsdir']
         commands.getstatusoutput(moveResultsCommand)
         commands.getstatusoutput(moveResultsCommand2)
 
@@ -67,7 +67,7 @@ class Plotter(AbstractPlotter):
         print >>f, data1
         print >>f, data2
         
-        filename = resultsdir + '/plot.py' 
+        filename = ANSParams.ansparams['resultsdir'] + '/plot.py' 
         infile = open(filename,"r")
         text = infile.read()
         infile.close()
@@ -89,7 +89,7 @@ class Plotter(AbstractPlotter):
         for y in measured:
             measuredY.append(float(y))
 
-        if DEBUG: 
+        if ANSParams.ansparams['DEBUG']: 
             self.computeError(measuredY, ydata)
 
         print >>f, data3
@@ -98,11 +98,13 @@ class Plotter(AbstractPlotter):
         print >>f, 'p1, = ax.loglog(t, s, \'k--\', basex=2, basey=2)'
         print >>f, 'p2, =  ax.loglog(t, r,\'k:\', basex=2, basey=2)'
 
-        print >>f, 'ax.set_xlabel("', xaxislabel, '")'
+        print >>f, 'ax.set_xlabel("', ANSParams.ansparams['xaxislabel'], '")'
 
-        print >>f, 'ax.set_ylabel("', yaxislabel, '")'
+        print >>f, 'ax.set_ylabel("', ANSParams.ansparams['yaxislabel'], '")'
 
-        print >>f, 'ax.set_title("', graphtitle,'")'
+        print >>f, 'ax.set_title("', ANSParams.ansparams['graphtitle'],'")'
+        
+        legend = GENParams.modparams['legend'].split()
 
         print >>f, 'ax.legend((p1,p2),("', legend[0],'", "', legend[1],'"))'
 
@@ -113,7 +115,7 @@ class Plotter(AbstractPlotter):
 
         cmd = 'chmod u+x merged-plot.py'
         commands.getstatusoutput(cmd)
-        moveResultsCommand = 'mv ' + os.getcwd() + '/merged-plot.py ' + resultsdir
+        moveResultsCommand = 'mv ' + os.getcwd() + '/merged-plot.py ' + ANSParams.ansparams['resultsdir']
         commands.getstatusoutput(moveResultsCommand)
 
     def writeGeneratePlot(self, f):
@@ -142,15 +144,15 @@ class Plotter(AbstractPlotter):
 
         #parameter: x-axis label                                         
 
-        print >>f, '\tprint >>f, \'\\nxlabel("', xaxislabel, '")\''
+        print >>f, '\tprint >>f, \'\\nxlabel("', ANSParams.ansparams['xaxislabel'], '")\''
 
         #parameter: y-axis label                                       
 
-        print >>f, '\tprint >>f, \'\\nylabel("', yaxislabel, '")\''
+        print >>f, '\tprint >>f, \'\\nylabel("', ANSParams.ansparams['yaxislabel'], '")\''
 
         #parameter: graph title                                          
 
-        print >>f, '\tprint >>f, \'\\ntitle("', graphtitle,'")\''
+        print >>f, '\tprint >>f, \'\\ntitle("', ANSParams.ansparams['graphtitle'],'")\''
 
         print >>f, '\tprint >>f, \'\\ngrid(True)\''
         print >>f, '\tprint >>f, \'\\nshow()\''
@@ -158,7 +160,7 @@ class Plotter(AbstractPlotter):
         print >>f, '\tf.close()\n'
 
     def genPlot(self, xdata, ydata):
-        f=open(plotfilename,'a')
+        f=open(ANSParams.ansparams['plotfilename'],'a')
         print >>f, '#!/usr/bin/env python'
         print >>f, '\nfrom pylab import *'
         xstring = '\nt = ['
@@ -172,9 +174,9 @@ class Plotter(AbstractPlotter):
         ystring += ']'
         print >>f, ystring
         print >>f, '\nloglog(t, s, linewidth=1.0,basex=2,basey=2)'
-        print >>f, '\nxlabel(" ' + xaxislabel +' ")'
-        print >>f, '\nylabel(" ' + yaxislabel + ' ")'
-        print >>f, '\ntitle(" ' + graphtitle + ' ")'
+        print >>f, '\nxlabel(" ' + ANSParams.ansparams['xaxislabel'] +' ")'
+        print >>f, '\nylabel(" ' + ANSParams.ansparams['yaxislabel'] + ' ")'
+        print >>f, '\ntitle(" ' + ANSParams.ansparams['graphtitle'] + ' ")'
         print >>f, '\ngrid(True)'
         print >>f, '\nshow()'
         f.close()
@@ -186,7 +188,7 @@ class Plotter(AbstractPlotter):
         n = len(measured)
 
         print measured
-        print modeled
+        print 'modeled data: ', modeled
         # calculate residuals (observed - predicted)                              
         mserr = sum((modeled-measured)**2) / n   # Total Sum of Squares                    
         sterr = sqrt(mserr)

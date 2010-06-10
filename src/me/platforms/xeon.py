@@ -128,7 +128,7 @@ class Generic(AbstractPlatform):
 
         for p in MEParams.meparams['processes'].split():
             for t in MEParams.meparams['threads'].split():
-                destdir = DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams[]trialname'] + '-p' + p + 't' + t
+                destdir = DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + p + 't' + t
                 tn = DBParams.dbparams['trialname'] + '-p' + p + '-t' + t
                 DB.load(destdir, tn, p,t)
 

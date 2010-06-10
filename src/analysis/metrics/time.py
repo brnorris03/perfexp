@@ -1,7 +1,9 @@
 #!/usr/bin/python
 
-from params import * 
 from analysis.interfaces import AbstractMetric
+from analysis.params import ANSParams
+from storage.params import DBParams
+from me.params import MEParams
 
 import sys
 
@@ -80,12 +82,12 @@ def glue():
 '''
     
         # Specialize the template
-        buf = buf.replace('@APPNAME@',appname)
-        if pmodel == 'mpi':
+        buf = buf.replace('@APPNAME@',DBParams.dbparams['appname'])
+        if MEParams.meparams['pmodel'] == "mpi":
             buf = buf.replace('@PROCS@','node_count')
         else:
             buf = buf.replace('@PROCS@','threads_per_context')
-        buf = buf.replace('@PROGRAM_EVENT@',programevent)
-        buf = buf.replace('@MHZ@',mhz)
+        buf = buf.replace('@PROGRAM_EVENT@',ANSParams.ansparams['programevent'])
+        buf = buf.replace('@MHZ@', ANSParams.ansparams['mhz'])
             
         return buf        

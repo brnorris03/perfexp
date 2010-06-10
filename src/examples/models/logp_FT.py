@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
 from math import *
-from params import * 
 from analysis.tools.tau import PerfExplorer 
 from analysis.interfaces import AbstractModel 
+from examples.models.params import FTParams
 
 class FT(AbstractModel):
     '''LogP model for FT'''
@@ -13,12 +13,12 @@ class FT(AbstractModel):
     
     def validate(self, params):
 
-        tc = float(modelparams[0])
-        N = int(modelparams[1])
-        L = float(modelparams[2])
-        o = float(modelparams[3])
-        g = float(modelparams[4])
-        m = int(modelparams[5])
+        tc = float(FTParams.modparams['tc'])
+        N = int(FTParams.modparams['N'])
+        L = float(FTParams.modparams['L'])
+        o = float(FTParams.modparams['o'])
+        g = float(FTParams.modparams['g'])
+        m = int(FTParams.modparams['m'])
 
         P = int(params[0])
 
