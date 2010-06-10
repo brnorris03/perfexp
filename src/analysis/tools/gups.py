@@ -46,11 +46,12 @@ class Hpcc(AbstractAnalyzer):
         plotter = Plotter()
 
         if MEParams.meparams['pmodel'] == "mpi":
-	    if MEParams.meparams['nodes']:
+	    if MEParams.meparams['nodes'] and MEParams.meparams['tasks_per_node']:
                 for n in MEParams.meparams['nodes'].split():
-                    P = n
-                    xdata.append(P)
-
+                    for t in MEParams.meparams['tasks_per_node'].split():
+                        P = int(n) * int(t)
+                        xdata.append(P)
+           
             else:	
                 for n in MEParams.meparams['processes'].split():
                     P = n

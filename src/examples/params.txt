@@ -10,7 +10,7 @@ cmdline = poe /u/home/ac/vtbui/projects/pmodels/benchmarks2/benchmarks/randomacc
 threads = 1
 processes = 1 
 nodes = 1 
-tasks_per_node = 1 2 4 8 16 32 
+tasks_per_node = 1 2 4 8 16 
 pmodel = mpi
 instrumentation = 
 exemode = batch
@@ -27,7 +27,7 @@ commode = IP
 
 [DataManager]
 
-datadir = /u/home/ac/vtbui/projects/pmodels/small/run2
+datadir = /home/vbui/projects/pmodels/small/run4
 appname =  ra
 expname = ra-bp-mpi
 trialname = ra-notimer-mpi
@@ -37,13 +37,13 @@ dbconfig = benchmarks
 
 [Analysis]
 
-resultsdir = /home/vbui/projects/pmodels/small/run2
+resultsdir = /home/vbui/projects/pmodels/small/run4
 programevent = .TAU application
 metric = time.WallClock
 metricparams = PAPI_TOT_CYC
 xaxislabel = MPI Processes
 yaxislabel = GUPS
-graphtitle = Test RandomAccess
+graphtitle = RandomAccess
 mhz = 1.9e9
 ptool = tau
 l2cacheline = 64
@@ -57,7 +57,13 @@ tl = 6.2e-6
 ta = 1.7e-6
 m = 8
 tul = 20.6e-6 
-legend = Measured LogP
+cs = 1.939e6
+cores = 2
+memlat = 209.2e-9
+membw = 4.7e-10
+l3lat = 47.6e-9
+l3bw = 6.9e-10
+legend = Measured Modeled
 
 
 
