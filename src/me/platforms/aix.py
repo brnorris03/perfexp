@@ -21,8 +21,8 @@ class BluePrint:
 			tasks_per_node = 1
 		print >>f, '#@ tasks_per_node = ' + tasks_per_node
 		print >>f, '#@ node = ' + node
-		print >>f, '#@ network.MPI_LAPI = sn_all,not_shared,US'
-		print >>f, '#@ wall_clock_limit = ' + MEParams.meparams['maxtime']
+		print >>f, '#@ network.MPI_LAPI = sn_all,not_shared,' + MEParams.meparams['commode']
+		print >>f, '#@ wall_clock_limit = ' + MEParams.meparams['walltime']
 		print >>f, '#@ output = $(host).$(jobid).$(stepid).out'
 		print >>f, '#@ error = $(host).$(jobid).$(stepid).err'
 		print >>f, '#@ queue'

@@ -2,7 +2,7 @@ import ConfigParser
 
 class MEParams:
 
-    meparams = {'DEBUG':None, 'workdir':None, 'mpidir':None, 'cmdline':None, 'cmdlineopts':None, 'threads':None, 'processes':None, 'nodes':None, 'tasks_per_node':None, 'pmodel':None, 'instrumentation':None, 'exemode':None, 'batchcmd':None, 'jobname':None, 'walltime':None, 'maxprocessor':None, 'accountname':None, 'buffersize':None, 'msgsize':None, 'stacksize':None, 'counters':None, 'maxtime':None}
+    meparams = {'DEBUG':None, 'workdir':None, 'mpidir':None, 'cmdline':None, 'threads':None, 'processes':None, 'nodes':None, 'tasks_per_node':None, 'pmodel':None, 'instrumentation':None, 'exemode':None, 'batchcmd':None, 'jobname':None, 'walltime':None, 'maxprocessor':None, 'accountname':None, 'buffersize':None, 'msgsize':None, 'stacksize':None, 'counters':None, 'commode':None}
 	
     def _processConfigFile(self):
  
@@ -34,12 +34,6 @@ class MEParams:
         
         except:
             raise Exception('Error: could not find cmdline in configuration file %s' % self.config_file)
-
-        try:
-            self.meparams['cmdlineopts'] = self.config.get(mysection, 'cmdlineopts')
-        
-        except:
-            raise Exception('Error: could not find cmdlineopts in configuration file %s' % self.config_file)
 
         try:
             self.meparams['threads'] = self.config.get(mysection, 'threads')
@@ -140,12 +134,13 @@ class MEParams:
         except:
             raise Exception('Error: could not find counters in configuration file %s' % self.config_file)
 
-
         try:
-            self.meparams['maxtime'] = self.config.get(mysection, 'maxtime')
+            self.meparams['commode'] = self.config.get(mysection, 'commode')
         
         except:
-            raise Exception('Error: could not find maxtime in configuration file %s' % self.config_file)
+            raise Exception('Error: could not find commode in configuration file %s' % self.config_file)
+
+
 
 
 

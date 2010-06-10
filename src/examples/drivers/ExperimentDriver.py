@@ -20,11 +20,8 @@ def main():
 	dataCollector = NoTimer()
 	
 	dataCollector.setCounters()
-	print 'set counters'
 	perfCmd = dataCollector.getCommand()
-	print perfCmd
 	measurementEnvironment.runApp(perfCmd)
-	print 'run app'
 	
 if __name__ == "__main__":
 

@@ -6,14 +6,13 @@ DEBUG = 1
 
 workdir = /u/home/ac/vtbui/projects/pmodels/benchmarks2/benchmarks/randomaccess/hpcc/mpi-omp-pthreads
 mpidir = 
-cmdlineopts = 
 cmdline = poe /u/home/ac/vtbui/projects/pmodels/benchmarks2/benchmarks/randomaccess/hpcc/mpi-omp-pthreads/./ra_rma
 threads = 1
-processes = 1 2 4 8 16 32 64
-nodes = 1 2 4 8 16 32 64
-tasks_per_node = 1 
+processes = 1 
+nodes = 1 
+tasks_per_node = 1 2 4 8 16 32 
 pmodel = mpi
-instrumentation = compiletime
+instrumentation = 
 exemode = batch
 batchcmd = llsubmit
 jobname = mpi-opt-kraken
@@ -23,12 +22,12 @@ accountname = TG-ASC050039N
 buffersize = 125829120
 msgsize = 64000
 stacksize = 10000000
-maxtime = 03:00:00
 counters = PAPI_TOT_CYC
+commode = IP
 
 [DataManager]
 
-datadir = /home/vbui/projects/pmodels/scale-test2/scale-test/run16
+datadir = /u/home/ac/vtbui/projects/pmodels/small/run2
 appname =  ra
 expname = ra-bp-mpi
 trialname = ra-notimer-mpi
@@ -38,7 +37,7 @@ dbconfig = benchmarks
 
 [Analysis]
 
-resultsdir = /home/vbui/projects/pmodels/scale-test2/scale-test/run16
+resultsdir = /home/vbui/projects/pmodels/small/run2
 programevent = .TAU application
 metric = time.WallClock
 metricparams = PAPI_TOT_CYC
