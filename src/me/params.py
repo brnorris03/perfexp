@@ -141,6 +141,21 @@ class MEParams:
             raise Exception('Error: could not find commode in configuration file %s' % self.config_file)
 
 
+        try:
+            self.meparams['memorysize'] = self.config.get(mysection, 'memorysize')
+        
+        except:
+            raise Exception('Error: could not find memorysize in configuration file %s' % self.config_file)
+
+
+        try:
+            self.meparams['queue'] = self.config.get(mysection, 'queue')
+        
+        except:
+            raise Exception('Error: could not find queue in configuration file %s' % self.config_file)
+
+
+
 
 
 

@@ -1,6 +1,7 @@
 #!/usr/bin/python
   
 from me.platforms.aix import BluePrint
+from me.platforms.cobalt import Cobalt
 from me.tools.tau import Collector as TAUCollector 
 from me.tools.notimer import Collector as NoTimer 
 from me.params import MEParams
@@ -15,7 +16,7 @@ def main():
 	dbParams = DBParams()
 	dbParams._processConfigFile()
 
-	measurementEnvironment = BluePrint()
+	measurementEnvironment = Cobalt()
 
 	dataCollector = NoTimer()
 	

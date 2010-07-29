@@ -4,32 +4,34 @@ DEBUG = 1
 
 [ExperimentDriver]
 
-workdir = /u/home/ac/vtbui/projects/pmodels/benchmarks2/benchmarks/randomaccess/hpcc/mpi-omp-pthreads
-mpidir = 
-cmdline = poe /u/home/ac/vtbui/projects/pmodels/benchmarks2/benchmarks/randomaccess/hpcc/mpi-omp-pthreads/./ra_rma
-threads = 1
-processes = 1 
+workdir = /scratch/users/vtbui
+mpidir = mpirun
+cmdline = /scratch/users/vtbui/ra_mpiblock
+threads = 1 
+processes = 1 2 4   
 nodes = 1 
-tasks_per_node = 1 2 4 8 16 
+tasks_per_node = 1 
 pmodel = mpi
 instrumentation = 
 exemode = batch
-batchcmd = llsubmit
-jobname = mpi-opt-kraken
-walltime = 03:00:00
+batchcmd = qsub
+jobname = mpi-ra
+walltime = 00:10:00
 maxprocessor = 48
-accountname = TG-ASC050039N
+accountname = TG-ASC090069
 buffersize = 125829120
 msgsize = 64000
 stacksize = 10000000
 counters = PAPI_TOT_CYC
 commode = IP
+memorysize = 2000mb
+queue = debug
 
 [DataManager]
 
-datadir = /home/vbui/projects/pmodels/small/run4
+datadir = /scratch/users/vtbui/mpi
 appname =  ra
-expname = ra-bp-mpi
+expname = ra-co-mpi
 trialname = ra-notimer-mpi
 cqosloaderdir = /homes/vbui/projects/experiments/fun3d
 cqosloader = CQoSDataLoader_fat_tau.jar
