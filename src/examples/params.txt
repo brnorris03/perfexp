@@ -4,32 +4,32 @@ DEBUG = 1
 
 [ExperimentDriver]
 
-workdir = /scratch/users/vtbui
-mpidir = mpirun
-cmdline = /scratch/users/vtbui/ra_mpiblock
+workdir = /homes/vbui/projects/test-tau
+mpidir = 
+cmdline = /homes/vbui/projects/test-tau/./simple
 threads = 1 
-processes = 1 2 4   
+processes = 1 
 nodes = 1 
 tasks_per_node = 1 
-pmodel = mpi
-instrumentation = 
-exemode = batch
-batchcmd = qsub
-jobname = mpi-ra
+pmodel = serial
+instrumentation = source
+exemode = interactive
+batchcmd = 
+jobname = testjob
 walltime = 00:10:00
-maxprocessor = 48
+maxprocessor = 1
 accountname = TG-ASC090069
 buffersize = 125829120
 msgsize = 64000
 stacksize = 10000000
-counters = PAPI_TOT_CYC
+counters = PAPI_TOT_CYC P_WALL_CLOCK_TIME
 commode = IP
 memorysize = 2000mb
 queue = debug
 
 [DataManager]
 
-datadir = /scratch/users/vtbui/mpi
+datadir = /homes/vbui/projects/test-tau
 appname =  ra
 expname = ra-co-mpi
 trialname = ra-notimer-mpi

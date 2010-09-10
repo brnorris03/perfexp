@@ -16,7 +16,7 @@ class Generic(AbstractPlatform):
 
     def moveData(self, src, dest):
     
-        DataCollector = LtimerCollector()
+        DataCollector = TAUCollector()
         dataFormat = DataCollector.getDataFormat()
 
         if not os.path.exists(dest):
@@ -35,8 +35,8 @@ class Generic(AbstractPlatform):
                 
             if MEParams.meparams['DEBUG']=="1": 
                 print 'DEBUG:move performance data command: ', moveCommand
-                print 'DEBUG:move performance data command: ', moveCommand2
-                print 'DEBUG:move performance data command: ', moveCommand3
+#                print 'DEBUG:move performance data command: ', moveCommand2
+#                print 'DEBUG:move performance data command: ', moveCommand3
 
         elif dataFormat == 'psrun':    
             moveCommand = 'mv ' + src + '/*.xml ' + dest + '/'
@@ -58,11 +58,6 @@ class Generic(AbstractPlatform):
 
     def runApp(self, perfCmd):
 
-        DataCollector = LtimerCollector()
-        dataFormat = DataCollector.getDataFormat()
-        DataCollector.setCounters()
-
-
         for p in MEParams.meparams['processes'].split():
             for t in MEParams.meparams['threads'].split():
 
@@ -70,9 +65,9 @@ class Generic(AbstractPlatform):
                     os.environ['OMP_NUM_THREADS'] = t
                     cmd = perfCmd
                     cmd += MEParams.meparams['cmdline'] 
-                elif pmodel == 'mpi':
-                    cmd = MEParams.meparams['mpidir'] + '/mpirun -np ' + p + ' ' + MEParams.meparams['cmdline'] +  ' ' + o 
-                else:
+                elif MEParams.meparams['pmodel'] == 'mpi':
+                    cmd = MEParams.meparams['mpidir'] + ' -np ' + p + ' ' + MEParams.meparams['cmdline'] +  ' ' + o 
+                elif MEParams.meparams['pmodel'] == 'serial':
                     cmd = MEParams.meparams['cmdline']  
 
                     # Run the application in the specified directory    

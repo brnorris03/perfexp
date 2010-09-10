@@ -72,6 +72,10 @@ class Cobalt:
 				for t in MEParams.meparams['threads'].split():
 					self.runit(p,t)
 
+                if MEParams.meparams['pmodel'] == "serial":
+                        self.runit(1,1)
+
+
 	def runit(self,p,t):
 
        		cmd  = MEParams.meparams['cmdline'] 
