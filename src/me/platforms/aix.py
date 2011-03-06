@@ -19,7 +19,7 @@ class BluePrint:
 		print >>f, '#@ class = medium'
 		if MEParams.meparams['pmodel'] == "omp":
 			tasks_per_node = 1
-		print >>f, '#@ tasks_per_node = ' + tasks_per_node
+		print >>f, '#@ tasks_per_node = ' + str(tasks_per_node)
 		print >>f, '#@ node = ' + node
 		print >>f, '#@ network.MPI_LAPI = sn_all,not_shared,' + MEParams.meparams['commode']
 		print >>f, '#@ wall_clock_limit = ' + MEParams.meparams['walltime']

@@ -1,4 +1,5 @@
 import ConfigParser
+import os
 
 class GENParams:
     modparams = {'DEBUG': None, 'legend':None}
@@ -6,7 +7,7 @@ class GENParams:
     def _processConfigFile(self):
         mysection = 'Models'
         self.config = ConfigParser.ConfigParser()
-        self.config_file = 'src/examples/params.txt'
+        self.config_file = os.environ.get("PERFEXPDIR") + '/src/examples/params.txt'
         self.config.readfp(open(self.config_file))
         
         try:
@@ -30,7 +31,7 @@ class LogGPFTParams:
         
         mysection = 'Models'
         self.config = ConfigParser.ConfigParser()
-        self.config_file = 'src/examples/params.txt'
+        self.config_file = os.environ.get("PERFEXPDIR") + '/src/examples/params.txt'
         self.config.readfp(open(self.config_file))
         
         try:
@@ -96,7 +97,7 @@ class FTParams:
         
         mysection = 'Models'
         self.config = ConfigParser.ConfigParser()
-        self.config_file = 'src/examples/params.txt'
+        self.config_file = os.environ.get("PERFEXPDIR") + '/src/examples/params.txt'
         self.config.readfp(open(self.config_file))
         
         try:
@@ -156,7 +157,7 @@ class RAParams:
         
         mysection = 'Models'
         self.config = ConfigParser.ConfigParser()
-        self.config_file = 'src/examples/params.txt'
+        self.config_file = os.environ.get("PERFEXPDIR") + '/src/examples/params.txt'
         self.config.readfp(open(self.config_file))
         
         try:
@@ -198,7 +199,7 @@ class RARMAParams:
         
         mysection = 'Models'
         self.config = ConfigParser.ConfigParser()
-        self.config_file = 'src/examples/params.txt'
+        self.config_file = os.environ.get("PERFEXPDIR") + '/src/examples/params.txt'
         self.config.readfp(open(self.config_file))
         
         try:
