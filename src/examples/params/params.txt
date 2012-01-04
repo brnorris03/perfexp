@@ -4,48 +4,51 @@ DEBUG = 1
 
 [ExperimentDriver]
 
-workdir = /u/home/ac/vtbui/projects/pmodels/benchmarks4/benchmarks/randomaccess/hpcc/openmp/test/t1
-mpidir = 
-cmdline = poe /u/home/ac/vtbui/projects/pmodels/benchmarks4/benchmarks/randomaccess/hpcc/openmp/./ra_omp
-threads = 1 2 
-processes = 1
+workdir = /projects/rrt/vtbui/exp/hydra/perf/singlefan/multigrid1
+mpidir = /usr/local/mpi/mvapich2/mvapich2-1.7rc1-intel-12.0.4/bin/mpirun_rsh
+inputdir = /projects/rrt/vtbui/exp/hydra/indata/singlefan
+inputfiles = bc.inflow.006.dat hydra.jm56.flow.adf hydra.jm56.grid.3.adf bc.outflow.007.dat hydra.jm56.grid.1.adf hydra.jm56.grid.4.adf bc.outflow.008.dat  hydra.jm56.grid.2.adf  input.dat
+cmdline = /ui/ac/vtbui/projects/rrt/HYDRA_base/HYDRA/hydra_6.2.23/bin/iforge/jm51_6.2.23_ppdp_load
+input = -1
+threads = 1  
+processes = 1  
 nodes = 1
-tasks_per_node = 1  
-pmodel = omp
+tasks_per_node = 1 2 4 
+pmodel = mpi
 instrumentation = 
 exemode = batch
-batchcmd = llsubmit
-jobname = mpi-opt-kraken
-walltime = 0:15:00
-maxprocessor = 48
-accountname = TG-ASC050039N
-buffersize = 125829120
+batchcmd = qsub
+jobname = hyd_mvp2
+walltime = 0:30:00
+maxprocessor = 1
+accountname = bc0
+buffersize = 
 msgsize = 64000
 stacksize = 10000000
 counters = PAPI_TOT_CYC
 commode = US
 smt = yes
 memorysize = 
-queue = 
+queue = normal
 
 [DataManager]
 
-datadir = /u/home/ac/vtbui/projects/pmodels/benchmarks4/benchmarks/randomaccess/hpcc/openmp/test/t1
-appname =  ra
-expname = ra-bp-mpi
-trialname = ra-notimer-mpi
+datadir = /projects/rrt/vtbui/exp/hydra/perf/singlefan/multigrid1
+appname =  hydra
+expname = hydra-iforge-mpi
+trialname = hydra-notimer-mpi
 cqosloaderdir = /homes/vbui/projects/experiments/fun3d
 cqosloader = CQoSDataLoader_fat_tau.jar
 dbconfig = benchmarks
 
 [Analysis]
 
-resultsdir = /home/vbui/projects/pmodels/small/run2
+resultsdir = /projects/rrt/vtbui/exp/hydra/singlefan/xeon5690/singlenode
 programevent = .TAU application
 metric = time.WallClock
 metricparams = PAPI_TOT_CYC
 xaxislabel = MPI Processes
-yaxislabel = GUPS
+yaxislabel = Seconds
 graphtitle = Test RandomAccess
 mhz = 1.9e9
 ptool = tau
