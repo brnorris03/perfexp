@@ -9,7 +9,7 @@ class MEParams:
  
         mysection = 'ExperimentDriver'
         self.config = ConfigParser.ConfigParser()
-        self.config_file = os.environ.get("PERFEXPDIR") + '/src/examples/params.txt'
+        self.config_file = os.environ.get("PERFEXPDIR") + '/src/examples/params/params.txt'
         self.config.readfp(open(self.config_file))
         
         try:
@@ -155,6 +155,23 @@ class MEParams:
         except:
             raise Exception('Error: could not find queue in configuration file %s' % self.config_file)
 
+        try:
+            self.meparams['input'] = self.config.get(mysection, 'input')
+
+        except:
+            raise Exception('Error: could not find input in configuration file %s' % self.config_file)
+
+        try:
+            self.meparams['inputdir'] = self.config.get(mysection, 'inputdir')
+
+        except:
+            raise Exception('Error: could not find inputdir in configuration file %s' % self.config_file)
+
+        try:
+            self.meparams['inputfiles'] = self.config.get(mysection, 'inputfiles')
+
+        except:
+            raise Exception('Error: could not find inputfiles in configuration file %s' % self.config_file)
 
 
 
