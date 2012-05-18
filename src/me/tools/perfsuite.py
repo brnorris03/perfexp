@@ -18,7 +18,11 @@ class Collector(AbstractCollector):
 
         print >>f, '</ps_hwpc_eventlist>'
 
-        os.environ["PS_HWPC_CONFIG"] = os.getcwd() + '/' + 'events.xml'
+        movecmd = 'mv '+ os.getcwd() + '/' + 'events.xml ' + MEParams.meparams['workdir'] + '/'
+        os.popen(movecmd)
+
+        os.environ["PS_HWPC_CONFIG"] = MEParams.meparams['workdir'] + '/events.xml'
+
 	f.close()
 
     def getCommand(self):

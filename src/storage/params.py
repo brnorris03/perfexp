@@ -9,7 +9,7 @@ class DBParams:
         
         mysection = 'DataManager'
         self.config = ConfigParser.ConfigParser()
-        self.config_file = os.environ.get("PERFEXPDIR") + '/src/examples/params.txt'
+        self.config_file = os.environ.get("PERFEXPDIR") + '/src/examples/params/params.txt'
         self.config.readfp(open(self.config_file))
         
         try:

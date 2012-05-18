@@ -1,7 +1,7 @@
 #!/usr/bin/python
   
-from me.platforms.aix import BluePrint
-from me.tools.notimer import Collector as NoTimer 
+from me.platforms.iforge import iForge
+from me.tools.perfsuite import Collector as PSCollector 
 from me.params import MEParams
 from storage.params import DBParams 
 import os, commands
@@ -14,22 +14,23 @@ def main():
 	dirList=os.listdir(paramsdir)
 
 	for fname in dirList:
-		filename = paramsdir + '/' + fname
-		cpcmd = 'cp ' + filename + ' ' + examplesdir + '/params.txt'
-		commands.getstatusoutput(cpcmd)  	
-		meParams = MEParams()
-		meParams._processConfigFile()
-	
-		dbParams = DBParams()
-		dbParams._processConfigFile()
+		if not fname.startswith('.'):
+			filename = paramsdir + '/' + fname
+			cpcmd = 'cp ' + filename + ' ' + examplesdir + '/params.txt'
+			commands.getstatusoutput(cpcmd)  	
+			meParams = MEParams()
+			meParams._processConfigFile()
+			
+			dbParams = DBParams()
+			dbParams._processConfigFile()
+			
+			measurementEnvironment = iForge()
 
-		measurementEnvironment = BluePrint()
-
-		dataCollector = NoTimer()
+			dataCollector = PSCollector()
 	
-		dataCollector.setCounters()
-		perfCmd = dataCollector.getCommand()
-		measurementEnvironment.runApp(perfCmd)
+			dataCollector.setCounters()
+			perfCmd = dataCollector.getCommand()
+			measurementEnvironment.runApp(perfCmd)
 	
 if __name__ == "__main__":
 

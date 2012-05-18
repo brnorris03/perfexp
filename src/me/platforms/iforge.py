@@ -1,9 +1,7 @@
 #!/usr/bin/python
 
 import os, commands
-from me.tools.tau import Collector as TAUCollector
-from me.tools.gprof import Collector as GprofCollector
-from me.tools.notimer import Collector as NoTimer
+from me.tools.perfsuite import Collector 
 from storage.tools.gprof import Gprof 
 from me.params import MEParams
 from storage.params import DBParams
@@ -11,6 +9,10 @@ from storage.params import DBParams
 class iForge:
 
 	def genBatchScript(self, node, tasks_per_node, threads, i,filename, execmd, destdir):
+
+		DataCollector = Collector()
+                dataFormat = DataCollector.getDataFormat()
+		ccmd = DataCollector.getCommand()
 
 		f = open(filename, 'w')
 
@@ -25,7 +27,12 @@ class iForge:
 		print >>f, 'cd ' + destdir
 		print >>f, 'setenv NP `wc -l ${PBS_NODEFILE} | cut -d\'/\' -f1`'
 
+
 		dest = DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + node + 't' + tasks_per_node + 't2' + threads + 'i'+i
+
+		if dataFormat == 'psrun':
+			print >>f, 'setenv PS_HWPC_CONFIG ' + dest + '/events.xml'
+			execmd = ccmd  + ' ' + execmd
 
 		if MEParams.meparams['inputfiles']:
 			for i in MEParams.meparams['inputfiles'].split():
@@ -33,7 +40,8 @@ class iForge:
 
 		if MEParams.meparams['pmodel'] == 'mpi':
 			print >>f,  MEParams.meparams['mpidir'] + ' -ssh  -np ${NP} -hostfile ${PBS_NODEFILE}' + ' ' + execmd
-			
+		else:	
+			print >>f, execmd
 
 	        print >>f, 'echo \'Job Completion time :\''		
 		print >>f, 'date'
@@ -42,7 +50,7 @@ class iForge:
 	
 	def moveData(self, src, dest):
 	
-        	DataCollector = NoTimer()
+        	DataCollector = Collector()
         	dataFormat = DataCollector.getDataFormat()
 
         	if not os.path.exists(dest):
@@ -63,7 +71,7 @@ class iForge:
                         os.popen(moveCommand)
 
 	def runApp(self, perfCmd):
-
+		
 		for p in MEParams.meparams['nodes'].split():
 			for t in MEParams.meparams['tasks_per_node'].split():
 				for t2 in MEParams.meparams['threads'].split():
@@ -71,6 +79,7 @@ class iForge:
 						self.runit(p,t,t2,i)
 
 	def runit(self,p,t,t2,i):
+
                 cmd = MEParams.meparams['cmdline']
 
                 if MEParams.meparams['DEBUG'] == "1":

@@ -4,28 +4,28 @@ DEBUG = 1
 
 [ExperimentDriver]
 
-workdir = /projects/rrt/vtbui/exp/hydra/perf/singlefan/multigrid1
+workdir = /ui/ac/vtbui/projects/kernels/matmul/exp/serial
 mpidir = /usr/local/mpi/mvapich2/mvapich2-1.7rc1-intel-12.0.4/bin/mpirun_rsh
-inputdir = /projects/rrt/vtbui/exp/hydra/indata/singlefan
-inputfiles = bc.inflow.006.dat hydra.jm56.flow.adf hydra.jm56.grid.3.adf bc.outflow.007.dat hydra.jm56.grid.1.adf hydra.jm56.grid.4.adf bc.outflow.008.dat  hydra.jm56.grid.2.adf  input.dat
-cmdline = /ui/ac/vtbui/projects/rrt/HYDRA_base/HYDRA/hydra_6.2.23/bin/iforge/jm51_6.2.23_ppdp_load
+inputdir = 
+inputfiles = 
+cmdline = /ui/ac/vtbui/projects/kernels/matmul/./matmul 100 100 naive
 input = -1
 threads = 1  
 processes = 1  
 nodes = 1
-tasks_per_node = 1 2 4 
-pmodel = mpi
-instrumentation = 
+tasks_per_node = 1  
+pmodel = serial
+instrumentation = runtime 
 exemode = batch
 batchcmd = qsub
-jobname = hyd_mvp2
-walltime = 0:30:00
+jobname = matmul
+walltime = 0:05:00
 maxprocessor = 1
-accountname = bc0
+accountname = 
 buffersize = 
 msgsize = 64000
 stacksize = 10000000
-counters = PAPI_TOT_CYC
+counters = PAPI_TOT_CYC PAPI_FP_OPS PAPI_TOT_INS
 commode = US
 smt = yes
 memorysize = 
@@ -33,10 +33,10 @@ queue = normal
 
 [DataManager]
 
-datadir = /projects/rrt/vtbui/exp/hydra/perf/singlefan/multigrid1
-appname =  hydra
-expname = hydra-iforge-mpi
-trialname = hydra-notimer-mpi
+datadir = /ui/ac/vtbui/projects/kernels/matmul/exp/serial
+appname =  matmul
+expname = iforge
+trialname = serial
 cqosloaderdir = /homes/vbui/projects/experiments/fun3d
 cqosloader = CQoSDataLoader_fat_tau.jar
 dbconfig = benchmarks
@@ -50,7 +50,7 @@ metricparams = PAPI_TOT_CYC
 xaxislabel = MPI Processes
 yaxislabel = Seconds
 graphtitle = Test RandomAccess
-mhz = 1.9e9
+mhz = 1.9e9    
 ptool = tau
 l2cacheline = 64
 plotfilename = plot.py
