@@ -4,18 +4,18 @@ DEBUG = 1
 
 [ExperimentDriver]
 
-workdir = /ui/ac/vtbui/projects/kernels/matmul/exp/serial
+workdir = /ui/ac/vtbui/projects/kernels/matmul/mpi/exp
 mpidir = /usr/local/mpi/mvapich2/mvapich2-1.7rc1-intel-12.0.4/bin/mpirun_rsh
 inputdir = 
 inputfiles = 
-cmdline = /ui/ac/vtbui/projects/kernels/matmul/./matmul 100 100 naive
+cmdline = /ui/ac/vtbui/projects/kernels/matmul/mpi/./matmul 
 input = -1
 threads = 1  
 processes = 1  
 nodes = 1
-tasks_per_node = 1  
-pmodel = serial
-instrumentation = runtime 
+tasks_per_node = 2 4 
+pmodel = mpi
+instrumentation = runtime
 exemode = batch
 batchcmd = qsub
 jobname = matmul
@@ -33,10 +33,10 @@ queue = normal
 
 [DataManager]
 
-datadir = /ui/ac/vtbui/projects/kernels/matmul/exp/serial
+datadir = /ui/ac/vtbui/projects/kernels/matmul/mpi/exp
 appname =  matmul
 expname = iforge
-trialname = serial
+trialname = mpi
 cqosloaderdir = /homes/vbui/projects/experiments/fun3d
 cqosloader = CQoSDataLoader_fat_tau.jar
 dbconfig = benchmarks

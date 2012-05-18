@@ -31,8 +31,11 @@ class iForge:
 		dest = DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + node + 't' + tasks_per_node + 't2' + threads + 'i'+i
 
 		if dataFormat == 'psrun':
-			print >>f, 'setenv PS_HWPC_CONFIG ' + dest + '/events.xml'
 			execmd = ccmd  + ' ' + execmd
+			if MEParams.meparams['counters']:
+				DataCollector.setCounters()
+				print >>f, 'setenv PS_HWPC_CONFIG ' + dest + '/events.xml'
+
 
 		if MEParams.meparams['inputfiles']:
 			for i in MEParams.meparams['inputfiles'].split():
@@ -70,7 +73,7 @@ class iForge:
 #       		commands.getstatusoutput(moveCommand)
                         os.popen(moveCommand)
 
-	def runApp(self, perfCmd):
+	def runApp(self):
 		
 		for p in MEParams.meparams['nodes'].split():
 			for t in MEParams.meparams['tasks_per_node'].split():

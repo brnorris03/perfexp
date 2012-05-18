@@ -53,7 +53,7 @@ class Kraken:
         		print 'DEBUG:move performance data command: ', moveCommand
        		commands.getstatusoutput(moveCommand)
 
-	def runApp(self, perfCmd):
+	def runApp(self):
 
 		if MEParams.meparams['pmodel'] == "omp":
 			for p in MEParams.meparams['nodes'].split():

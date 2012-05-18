@@ -1,7 +1,6 @@
 #!/usr/bin/python
   
 from me.platforms.iforge import iForge
-from me.tools.perfsuite import Collector as PSCollector 
 from me.params import MEParams
 from storage.params import DBParams 
 import os, commands
@@ -26,11 +25,7 @@ def main():
 			
 			measurementEnvironment = iForge()
 
-			dataCollector = PSCollector()
-	
-			dataCollector.setCounters()
-			perfCmd = dataCollector.getCommand()
-			measurementEnvironment.runApp(perfCmd)
+			measurementEnvironment.runApp()
 	
 if __name__ == "__main__":
 

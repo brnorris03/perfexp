@@ -56,7 +56,10 @@ class Generic(AbstractPlatform):
             if MEParams.meparams['DEBUG']=="1": 
                 print 'DEBUG:move performance data command: ', moveCommand
 
-    def runApp(self, perfCmd):
+    def runApp(self):
+
+        DataCollector = TAUCollector()
+        perfCmd = DataCollector.getCommand()        
 
         for p in MEParams.meparams['processes'].split():
             for t in MEParams.meparams['threads'].split():

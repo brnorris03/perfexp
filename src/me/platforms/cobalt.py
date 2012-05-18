@@ -57,7 +57,7 @@ class Cobalt:
 #       		commands.getstatusoutput(moveCommand)
                         os.popen(moveCommand)
 
-	def runApp(self, perfCmd):
+	def runApp(self):
 
 		if MEParams.meparams['pmodel'] == "omp":
 			for p in MEParams.meparams['processes'].split():
