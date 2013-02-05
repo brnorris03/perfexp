@@ -3,7 +3,7 @@ import os
 
 class MEParams:
 
-    meparams = {'DEBUG':None, 'workdir':None, 'mpidir':None, 'cmdline':None, 'threads':None, 'processes':None, 'nodes':None, 'tasks_per_node':None, 'pmodel':None, 'instrumentation':None, 'exemode':None, 'batchcmd':None, 'jobname':None, 'walltime':None, 'maxprocessor':None, 'accountname':None, 'buffersize':None, 'msgsize':None, 'stacksize':None, 'counters':None, 'commode':None}
+    meparams = {'DEBUG':None, 'workdir':None, 'mpidir':None, 'mpicmd':None, 'cmdline':None, 'threads':None, 'processes':None, 'nodes':None, 'tasks_per_node':None, 'pmodel':None, 'instrumentation':None, 'exemode':None, 'batchcmd':None, 'jobname':None, 'walltime':None, 'maxprocessor':None, 'accountname':None, 'buffersize':None, 'msgsize':None, 'stacksize':None, 'counters':None, 'commode':None}
 	
     def _processConfigFile(self):
  
@@ -14,21 +14,23 @@ class MEParams:
         
         try:
             self.meparams['DEBUG'] = self.config.get('General', 'DEBUG')
-        
         except:
             raise Exception('Error: could not find DEBUG in configuration file %s' % self.config_file)
 
         try:
             self.meparams['workdir'] = self.config.get(mysection, 'workdir')
-        
         except:
             raise Exception('Error: could not find workdir in configuration file %s' % self.config_file)
 
         try:
             self.meparams['mpidir'] = self.config.get(mysection, 'mpidir')
-        
         except:
             raise Exception('Error: could not find mpidir in configuration file %s' % self.config_file)
+
+        try:
+            self.meparams['mpicmd'] = self.config.get(mysection, 'mpicmd')
+        except:
+            raise Exception('Error: could not find mpicmd (e.g., mpicmd = mpiexec -np 4) in configuration file %s' % self.config_file)
 
         try:
             self.meparams['cmdline'] = self.config.get(mysection, 'cmdline')
