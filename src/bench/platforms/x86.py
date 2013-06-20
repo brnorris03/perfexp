@@ -39,7 +39,7 @@ class X86(AbstractPlatform):
             vals.append(float(val))
              
         params = {'metric':'mem_read_bw','size':s,'procs':procs}
-        self.recordMeasurement('mem_read_bw', Measurement(get_stats(vals),units='MB/s',params=params))
+        self.recordMeasurement(params, Measurement(get_stats(vals),units='MB/s',params=params))
         return
 
     def get_l1_read_latency(self, **kwargs):
@@ -59,10 +59,11 @@ class X86(AbstractPlatform):
         f.write("%s\n" % thestr)
         f.close()
 
-    def recordMeasurement(self, metric, measurement):
+    def recordMeasurement(self, params, measurement):
         ''' Record the measurement and relevant parameters in the log file. '''
-        self.measurements[metric] = measurement
+        key = str(params)
+        self.measurements[key] = measurement
         f = open(self.logfile,"a")
-        f.write("%s\n" % str(self.measurements[metric]))
+        f.write("%s\n" % str(self.measurements[key]))
         f.close()
 

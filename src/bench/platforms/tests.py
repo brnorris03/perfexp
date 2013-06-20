@@ -19,7 +19,8 @@ def main():
 
 
     # Print all measurements
-    print arch.measurements
+    for key,val in arch.measurements.items():
+        print val
 
 
 
