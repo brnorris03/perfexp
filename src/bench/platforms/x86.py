@@ -35,8 +35,8 @@ class X86(AbstractPlatform):
             s,val = cmd_output.split()
             vals.append(float(val))
              
-        params = ['mem_read_latency',s]
-        self.recordMeasurement('mem_read_latency', Measurement(get_stats(vals),units='MB/s',params=params))
+        params = ['mem_read_bw',s]
+        self.recordMeasurement('mem_read_bw', Measurement(get_stats(vals),units='MB/s',params=params))
         return
 
     def get_l1_read_latency(self, **kwargs):
