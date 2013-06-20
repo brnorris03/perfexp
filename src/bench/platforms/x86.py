@@ -14,6 +14,9 @@ class X86(AbstractPlatform):
         # LMBench: http://www.bitmover.com/lmbench
 
         self.logfile = os.path.join(os.getcwd(),'X86.log')
+
+        # The number of time to run the experiment for each measurement
+        self.reps = 5
         pass
 
 
@@ -29,13 +32,13 @@ class X86(AbstractPlatform):
 
         vals = []
         self.log(cmd)
-        for i in range(1,20):
+        for i in range(0,self.reps):
             # TODO KC: make the number of repetitions a parameter
             return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
             s,val = cmd_output.split()
             vals.append(float(val))
              
-        params = ['mem_read_bw',s]
+        params = {'metric':'mem_read_bw','size':s,'procs':procs}
         self.recordMeasurement('mem_read_bw', Measurement(get_stats(vals),units='MB/s',params=params))
         return
 

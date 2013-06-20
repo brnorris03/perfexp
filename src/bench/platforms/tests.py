@@ -14,6 +14,7 @@ def main():
     # test various metrics computations
 
     arch.measure('mem_read_bw', procs='1', size='256m')
+    arch.measure('mem_read_bw', procs='2', size='256m')
     #arch.measure('mem_read_latency')
 
 
