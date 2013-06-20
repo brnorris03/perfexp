@@ -57,8 +57,9 @@ class X86(AbstractPlatform):
         f.close()
 
     def recordMeasurement(self, metric, measurement):
+        ''' Record the measurement and relevant parameters in the log file. '''
         self.measurements[metric] = measurement
         f = open(self.logfile,"a")
-        f.write("%s : %s\n" % (metric,str(self.measurements[metric])))
+        f.write("%s\n" % str(self.measurements[metric]))
         f.close()
 
