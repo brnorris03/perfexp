@@ -28,12 +28,12 @@ class X86(AbstractPlatform):
         ''' Memory read bandwidth measurement with lmbench '''
         size = kwargs.get('size')
         procs = kwargs.get('procs')
-        reps = kwards.get('reps')
+        reps = kwargs.get('reps')
         cmd = self.lmbench_path + 'bw_mem -P %s %s rd' % (procs,size)
 
         vals = []
         self.log(cmd)
-        for i in range(0,reps):
+        for i in range(0,int(reps)):
             # TODO KC: make the number of repetitions a parameter
             """made it one of the inputs in the test file and added it to
             params. Commented out the repetitions in self. Was it supposed
