@@ -16,7 +16,7 @@ class X86(AbstractPlatform):
         self.logfile = os.path.join(os.getcwd(),'X86.log')
 
         # The number of time to run the experiment for each measurement
-        self.reps = 5
+        #self.reps = 5
         pass
 
 
@@ -28,17 +28,21 @@ class X86(AbstractPlatform):
         ''' Memory read bandwidth measurement with lmbench '''
         size = kwargs.get('size')
         procs = kwargs.get('procs')
+        reps = kwards.get('reps')
         cmd = self.lmbench_path + 'bw_mem -P %s %s rd' % (procs,size)
 
         vals = []
         self.log(cmd)
-        for i in range(0,self.reps):
+        for i in range(0,reps):
             # TODO KC: make the number of repetitions a parameter
+            """made it one of the inputs in the test file and added it to
+            params. Commented out the repetitions in self. Was it supposed
+            to be an input parameter or stay as a class varialbe?"""
             return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
             s,val = cmd_output.split()
             vals.append(float(val))
              
-        params = {'metric':'mem_read_bw','size':s,'procs':procs}
+        params = {'metric':'mem_read_bw','size':s,'procs':procs,'reps':reps}
         self.recordMeasurement(params, Measurement(get_stats(vals),units='MB/s',params=params))
         return
 
