@@ -49,11 +49,34 @@ class X86(AbstractPlatform):
     def get_l1_read_latency(self, **kwargs):
         ''' Measure L1 read latency and record in self.measurements. '''
         # TODO KC
+        size = kwargs.get('size')
+        stride = kwargs.get('stride')
+        cmd = self.lmbench_path + 'lat_mem_rd %s %s' % (size, stride)
+        
+        vals = []
+        self.log(cmd)
+
+
         return
 
     def get_l1_read_bw(self, **kwargs):
         ''' Measure L1 read bandwidth and record in self.measurements. '''
         # TODO KC
+        size = kwargs.get('size')
+        procs = kwargs.get('procs')
+        reps = kwargs.get('reps')
+        cmd = self.lmbench_path + 'bw_mem -P %s %s rd' % (procs,size)
+
+        vals = []
+        self.log(cmd)
+        for i in range(0,int(reps)):
+            return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+            s,val = cmd_output.split()
+            vals.append(float(val))
+             
+        params = {'metric':'l1_read_bw','size':s,'procs':procs,'reps':reps}
+        self.recordMeasurement(params, Measurement(get_stats(vals),units='MB/s',params=params))
+
         return
 
 
