@@ -34,10 +34,7 @@ class X86(AbstractPlatform):
         vals = []
         self.log(cmd)
         for i in range(0,int(reps)):
-            # TODO KC: make the number of repetitions a parameter
-            """made it one of the inputs in the test file and added it to
-            params. Commented out the repetitions in self. Was it supposed
-            to be an input parameter or stay as a class varialbe?"""
+            """number of repetitions added as a parameter"""
             return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
             s,val = cmd_output.split()
             vals.append(float(val))
@@ -48,7 +45,6 @@ class X86(AbstractPlatform):
 
     def get_l1_read_latency(self, **kwargs):
         ''' Measure L1 read latency and record in self.measurements. '''
-        # TODO KC
         size = kwargs.get('size')
         stride = kwargs.get('stride')
         cmd = self.lmbench_path + 'lat_mem_rd %s %s' % (size, stride)
@@ -57,13 +53,14 @@ class X86(AbstractPlatform):
         return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
         
         #find only numbers without alpha characters
-        p = re.compile('\d+')
-        val = p.findall(cmd_output)
+        regex = '[-+]?[0-9]+(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)?'
+        val = re.findall(regex, cmd_output)
         mes = { }
         
         #pair them up
-        for i in range(0, len(val), 2):
-            mes[val[i]] =val[i+1] 
+        for i in range(1, len(val), 2):
+           if(i+1 < len(val)):
+               mes[val[i]] =val[i+1] 
        
 
         params = {'metric':'l1_read_latency', 'size':size, 'stride':stride}
@@ -73,7 +70,6 @@ class X86(AbstractPlatform):
 
     def get_l1_read_bw(self, **kwargs):
         ''' Measure L1 read bandwidth and record in self.measurements. '''
-        # TODO KC
         size = kwargs.get('size')
         procs = kwargs.get('procs')
         reps = kwargs.get('reps')
