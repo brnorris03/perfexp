@@ -82,7 +82,7 @@ class X86(AbstractPlatform):
 
         for x in range(start, end):
             vals = []
-            cmd = self.lmbench_path + 'bw_mem -P %s %s rd' %  (procs, x)
+            cmd = self.lmbench_path + 'bw_mem -P %s %s rd' %  (procs, str(x)+'m')
             self.log(cmd)
             #get read bandwidth for a specific size
             for i in range(0,int(reps)):
@@ -93,8 +93,8 @@ class X86(AbstractPlatform):
 
             #keep statistics to pass
             stat_collector[x] = get_stats(vals)
-            value_to_jump = stat_collector[x[0]]
-            means.append(value_to_jump)
+            value_to_jump = stat_collector[x]
+            means.append(value_to_jump[0])
             
         jumps = { }
         #get differences between values to find biggest jump
@@ -119,7 +119,7 @@ class X86(AbstractPlatform):
                 mem_size = k
 
         #process vals 
-        params = {'metric':'l1_read_bw','size':mem_size,'procs':procs,'reps':reps}
+        params = {'metric':'l1_read_bw','size':str(mem_size)+'m','procs':procs,'reps':reps}
         self.recordMeasurement(params, Measurement(best,units='MB/s',params=params))
 
         return
