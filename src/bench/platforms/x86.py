@@ -52,10 +52,23 @@ class X86(AbstractPlatform):
         size = kwargs.get('size')
         stride = kwargs.get('stride')
         cmd = self.lmbench_path + 'lat_mem_rd %s %s' % (size, stride)
-        
-        vals = []
         self.log(cmd)
+        #get output
+        return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+        
+        #find only numbers without alpha characters
+        p = re.compile('\d+')
+        val = p.findall(cmd_output)
+        mes = { }
+        if (len(val)%2 == 0):
+            #pair them up
+            for i in range(0, len(val), 2):
+                mes[val[i]] =val[i+1] 
+        else:
+            print "error: not a match"
 
+        params = {'metric':'l1_read_latency', 'size':size, 'stride':stride}
+        self.recordMeasurement(params, mes)
 
         return
 
