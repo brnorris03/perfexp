@@ -55,16 +55,22 @@ class X86(AbstractPlatform):
         
         #find only numbers without alpha characters
         regex = '[-+]?[0-9]+(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)?'
-        val = re.findall(regex, cmd_output)
+        stringresults = re.findall(regex, cmd_output)
+        val = []
+
+        #change strings to ints
+        for i in range(1, len(stringresults)):
+            val.append(float(stringresults[i]))
+
         mes = { }
         
-        #pair them up - start @ 1 to skip reported stride number
-        for i in range(1, len(val), 2):
+        #pair them up - 
+        for i in range(0, len(val), 2):
            if(i+1 < len(val)):
                mes[val[i]] = val[i+1] 
         
         #need to find the latency for the correct level (find jump)
-        jumps = self.findjump(val[2::2])
+        jumps = self.findjump(val[1::2])
 
         '''Create array of values up to the specified level'''
         giveback = { }
@@ -73,13 +79,13 @@ class X86(AbstractPlatform):
         #checks to make sure level searched for exists
         if(len(jumps) <= int(level)):
             #return cross section
-            for i in range(1, len(val), 2):
+            for i in range(0, len(val), 2):
                   if(i+1 < len(val)):
                       #i is memory depth, i+1 is latency
                       if((i+1) <= jumps[l_count]):
                           giveback[val[i]] = val[i+1]
                       else:
-                          if(l_count < level):
+                          if(l_count < int(level)):
                               l_count+=1
                               giveback[val[i]] = val[i+1]
                           else:
@@ -124,8 +130,12 @@ class X86(AbstractPlatform):
             
   
         #get the jump location in the range
-        getback = findjump(means)
-        track = getback[1]
+        #what do you do if the jump is not in the range???
+        getback = self.findjump(means)
+        if(len(getback) == 1):
+            track = getback[0]
+        else:
+            track = means[0]
 
         mem_size = 0
         best = []
