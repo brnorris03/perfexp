@@ -58,15 +58,39 @@ class X86(AbstractPlatform):
         val = re.findall(regex, cmd_output)
         mes = { }
         
-        #pair them up
+        #pair them up - start @ 1 to skip reported stride number
         for i in range(1, len(val), 2):
            if(i+1 < len(val)):
-               mes[val[i]] =val[i+1] 
-               
+               mes[val[i]] = val[i+1] 
+        
         #need to find the latency for the correct level (find jump)
+        jumps = self.findjump(val[2::2])
+
+        '''Create array of values up to the specified level'''
+        giveback = { }
+        l_count = 0
+        
+        #checks to make sure level searched for exists
+        if(len(jumps) <= int(level)):
+            #return cross section
+            for i in range(1, len(val), 2):
+                  if(i+1 < len(val)):
+                      #i is memory depth, i+1 is latency
+                      if((i+1) <= jumps[l_count]):
+                          giveback[val[i]] = val[i+1]
+                      else:
+                          if(l_count < level):
+                              l_count+=1
+                              giveback[val[i]] = val[i+1]
+                          else:
+                              #reached correct level
+                              break
+        else:
+            #assume no jumps, return all data
+            giveback = mes
 
         params = {'metric':'l1_read_latency', 'size':size, 'stride':stride}
-        self.recordMeasurement(params, mes)
+        self.recordMeasurement(params, giveback)
 
         return
 
@@ -119,22 +143,43 @@ class X86(AbstractPlatform):
 
 
     def findjump(self, array):
-        jumps = { }
+        '''should find all jumps in a data set'''
+        jumps = []
+        counter = 0;
+        min_mem = 256
+        climb = False
+        tolerance = 5 #may need to be a given depending on 
+        
         #get differences between values to find biggest jump
         for i in range(0, len(array)):
             if(i+1 < len(array)):
-                jumps[array[i]] = float(abs(array[i+1] - array[i]))
+                distance = float(abs(array[i+1] - array[i]))
+               
+                #possibly a jump
+                if(distance > tolerance):
+                    counter+=1
+
+                    #distances are wobbly - not on a memory plateau
+                    if(counter > 3): 
+                        climb = True
+                    #only store jumps if not climbing
+                    if(not climb):
+                        jumps.append(array[i])
+
+                #should mean you are on a memory plateau
+                else:
+                    counter = 0
+                    climb = False
                     
-        #find the maximum jump
-        maximum = 0
-        track = -1
-        for i in jumps:
-            if(jumps[i] > maximum):
-                maximum = jumps[i] 
-                track = i
-        
-        giveback = [maximum, track]
-        return giveback
+        #check that all recorded jumps are at least min mem dist
+        for i in range(0, len(jumps)):
+            if(i+1 < len(jumps)):
+                dist = abs(jumps[i+1] - jumps[i])
+                if(dist < min_mem):
+                    #recorded a climb value rather than jump
+                    del jumps[i+1]
+       
+        return jumps
 
     def log(self, thestr):
         f = open(self.logfile,"a")
