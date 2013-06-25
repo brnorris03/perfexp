@@ -47,6 +47,7 @@ class X86(AbstractPlatform):
         ''' Measure L1 read latency and record in self.measurements. '''
         size = kwargs.get('size')
         stride = kwargs.get('stride')
+        level = kwargs.get('level')
         cmd = self.lmbench_path + 'lat_mem_rd %s %s' % (size, stride)
         self.log(cmd)
         #get output
@@ -61,7 +62,8 @@ class X86(AbstractPlatform):
         for i in range(1, len(val), 2):
            if(i+1 < len(val)):
                mes[val[i]] =val[i+1] 
-       
+               
+        #need to find the latency for the correct level (find jump)
 
         params = {'metric':'l1_read_latency', 'size':size, 'stride':stride}
         self.recordMeasurement(params, mes)
@@ -96,20 +98,11 @@ class X86(AbstractPlatform):
             value_to_jump = stat_collector[x]
             means.append(value_to_jump[0])
             
-        jumps = { }
-        #get differences between values to find biggest jump
-        for i in range(0, len(means)):
-            if(i+1 < len(means)):
-                jumps[means[i]] = float(abs(means[i+1] - means[i]))
-                    
-        #find the maximum jump
-        maximum = 0
-        track = -1
-        for i in jumps:
-            if(jumps[i] > maximum):
-                maximum = jumps[i] 
-                track = i
-       
+  
+        #get the jump location in the range
+        getback = findjump(means)
+        track = getback[1]
+
         mem_size = 0
         best = []
         #find final answers by looking through stat_collector
@@ -125,6 +118,23 @@ class X86(AbstractPlatform):
         return
 
 
+    def findjump(self, array):
+        jumps = { }
+        #get differences between values to find biggest jump
+        for i in range(0, len(array)):
+            if(i+1 < len(array)):
+                jumps[array[i]] = float(abs(array[i+1] - array[i]))
+                    
+        #find the maximum jump
+        maximum = 0
+        track = -1
+        for i in jumps:
+            if(jumps[i] > maximum):
+                maximum = jumps[i] 
+                track = i
+        
+        giveback = [maximum, track]
+        return giveback
 
     def log(self, thestr):
         f = open(self.logfile,"a")
