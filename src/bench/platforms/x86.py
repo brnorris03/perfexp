@@ -109,6 +109,8 @@ class X86(AbstractPlatform):
         start = int(kwargs.get('size'))
         end = int(kwargs.get('next_size'))
 
+        #have a max in case findjump returns empty
+        max_means = -1 
         means = []
         stat_collector = { }
 
@@ -128,6 +130,9 @@ class X86(AbstractPlatform):
             value_to_jump = stat_collector[x]
             means.append(value_to_jump[0])
             
+            if(value_to_jump > max_means):
+                max_means = value_to_jump
+            
   
         #get the jump location in the range
         #what do you do if the jump is not in the range???
@@ -135,7 +140,7 @@ class X86(AbstractPlatform):
         if(len(getback) == 1):
             track = getback[0]
         else:
-            track = means[0]
+            track = max_means
 
         mem_size = 0
         best = []
