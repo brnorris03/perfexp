@@ -131,7 +131,7 @@ class X86(AbstractPlatform):
             means.append(value_to_jump[0])
             
             if(value_to_jump > max_means):
-                max_means = value_to_jump
+                max_means = value_to_jump[0]
             
   
         #get the jump location in the range
@@ -144,13 +144,16 @@ class X86(AbstractPlatform):
 
         mem_size = 0
         best = []
+        
         #find final answers by looking through stat_collector
         for k, v in stat_collector.iteritems():
+            #print "track: %s and v[0]: %s " % (track, v[0])
             if (v[0] == track):
                 best = v
                 mem_size = k
 
         #process vals 
+        print best
         params = {'metric':'l1_read_bw','size':str(mem_size)+'m','procs':procs,'reps':reps}
         self.recordMeasurement(params, Measurement(best,units='MB/s',params=params))
 
