@@ -37,6 +37,10 @@ class AbstractPlatform:
         eval(methodname)
         return
 
+    def get_mem_write_bw(self, **kwargs):
+        '''Measure memory write latency and record in self.measurements.'''
+        raise NotImplementedError
+
     def get_mem_read_latency(self, **kwargs):
         ''' Measure memory read latency and record in self.measurements. '''
         raise NotImplementedError
