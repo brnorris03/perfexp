@@ -100,26 +100,26 @@ class X86(AbstractPlatform):
 
         return
 
-    def get_mem_write_bw(self, **kwards):
+    def get_mem_write_bw(self, **kwargs):
          ''' Memory write bandwidth measurement with lmbench '''
-        size = kwargs.get('size')
-        procs = kwargs.get('procs')
-        reps = kwargs.get('reps')
-        cmd = self.lmbench_path + 'bw_mem -P %s %s wr' % (procs, size)
+         size = kwargs.get('size')
+         procs = kwargs.get('procs')
+         reps = kwargs.get('reps')
+         cmd = self.lmbench_path + 'bw_mem -P %s %s wr' % (procs, size)
 
-        vals = []
-        self.log(cmd)
-
+         vals = []
+         self.log(cmd)
+         
         #run command for whole of memory
          for i in range(0,int(reps)):
-            """number of repetitions added as a parameter"""
-            return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
-            s,val = cmd_output.split()
-            vals.append(float(val))     
+             """number of repetitions added as a parameter"""
+             return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+             s,val = cmd_output.split()
+             vals.append(float(val))     
 
-        params = {'metric':'mem_write_bw','size':s,'procs':procs,'reps':reps}
-        self.recordMeasurement(params, Measurement(get_stats(vals),units='MB/s',params=params))
-        return
+         params = {'metric':'mem_write_bw','size':s,'procs':procs,'reps':reps}
+         self.recordMeasurement(params, Measurement(get_stats(vals),units='MB/s',params=params))
+         return
 
     def get_l1_read_bw(self, **kwargs):
         ''' Measure L1 read bandwidth and record in self.measurements. '''
