@@ -12,8 +12,9 @@ def main():
     arch.help()
 
     # test various metrics computations
+    arch.measure('papi_avail_caller')
     arch.measure('mem_write_bw', procs='1', size='256m', reps='5')
-    #arch.measure('mem_read_bw', procs='1', size='256m', reps='5')
+    arch.measure('mem_read_bw', procs='1', size='256m', reps='5')
     #arch.measure('mem_read_bw', procs='2', size='256m', reps='1')
     #arch.measure('l1_read_latency', size='32', stride='512', level='2')
     #arch.measure('l1_read_bw', procs='1', size='258', next_size = '265', reps='1')

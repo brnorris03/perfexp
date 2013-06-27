@@ -12,7 +12,7 @@ class X86(AbstractPlatform):
         # temporarily hard-coded location of lmbench (on cookie):
         self.lmbench_path = '/disks/soft/src/lmbench3/bin/x86_64-linux-gnu/'
         # LMBench: http://www.bitmover.com/lmbench
-
+        self.papi_path = '/disks/soft/papi-4.4.0/bin/papi_avail'
         self.logfile = os.path.join(os.getcwd(),'X86.log')
 
         # The number of time to run the experiment for each measurement
@@ -22,6 +22,14 @@ class X86(AbstractPlatform):
 
     def runBenchmark(self, cmd):
         # TODO: run entire benchmark 
+        return
+
+    def get_papi_avail_caller(self, **kwargs):
+        '''if papi is on a machine, then it will help gather the data'''
+        cmd = self.papi_path
+        self.log(cmd)
+        return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
+        #will need to parse output, store it and make sure the naming is standardized
         return
 
     def get_mem_read_bw(self, **kwargs): 
@@ -121,6 +129,18 @@ class X86(AbstractPlatform):
          self.recordMeasurement(params, Measurement(get_stats(vals),units='MB/s',params=params))
          return
 
+    def get_l1_write_bw(self, **kwargs):
+        ''' Measure L1 write bandwidth and record in self.measurements. '''
+        
+        procs = kwargs.get('procs')
+        reps = kwargs.get('reps')
+        
+        #depending on size (which one you're looking for) can start around that range
+        start = int(kwargs.get('size'))
+        end = int(kwargs.get('next_size'))
+        self.measure('l1_read_bw', procs=procs, size=size, next_size=next_size, reps=reps, kind='write') 
+        return
+    
     def get_l1_read_bw(self, **kwargs):
         ''' Measure L1 read bandwidth and record in self.measurements. '''
         procs = kwargs.get('procs')
@@ -137,7 +157,10 @@ class X86(AbstractPlatform):
 
         for x in range(start, end):
             vals = []
-            cmd = self.lmbench_path + 'bw_mem -P %s %s rd' %  (procs, str(x)+'m')
+            if(kwargs.get('kind') == 'write'):
+                cmd = self.lmbench_path + 'bw_mem -P %s %s wr' % (procs, str(x)+'m')
+            else:
+                cmd = self.lmbench_path + 'bw_mem -P %s %s rd' %  (procs, str(x)+'m')
             self.log(cmd)
             #get read bandwidth for a specific size
             for i in range(0,int(reps)):
