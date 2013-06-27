@@ -12,6 +12,7 @@ class AbstractPlatform:
             for metric in ['read_latency', 'read_bw', 'write_latency', 'write_bw', 'rw_latency', 'rw_bw']:
                 self.memory_metrics.append('%s_%s' % (memlevel, metric))
 
+        self.memory_metrics.append('papi_avail_caller')
         self.measurements = {}
 
     def help(self):
@@ -37,8 +38,16 @@ class AbstractPlatform:
         eval(methodname)
         return
 
+    def get_papi_avail_caller(self, **kwargs):
+        '''gets system info on machines that have papi installed'''
+        raise NotImplementedError
+
     def get_mem_write_bw(self, **kwargs):
         '''Measure memory write latency and record in self.measurements.'''
+        raise NotImplementedError
+    
+    def get_l1_write_bw(self, **kwargs):
+        ''' Measure L1 write bandwidth and record in self.measurements. '''
         raise NotImplementedError
 
     def get_mem_read_latency(self, **kwargs):
