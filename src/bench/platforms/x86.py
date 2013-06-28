@@ -99,6 +99,9 @@ class X86(AbstractPlatform):
         self.os_info['os_release'] = cmd_output[2]
         print self.os_info
 
+        self._log(hardware_total_mem)
+        return_code, cmd_output = system_or_die(hardware_total_mem, log_file = self.logfile)
+
         return
                
                 
