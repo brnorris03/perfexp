@@ -2,7 +2,7 @@
 
 import os, sys, getopt, re, math
 
-from bench.interfaces import AbstractPlatform, Measurement
+from bench.interfaces import AbstractPlatform, Measurement, MeasurementException
 from common.messages import err,warn,info,debug,exit
 from common.utils import system_or_die, get_stats
 
@@ -13,7 +13,25 @@ class X86(AbstractPlatform):
         self.lmbench_path = '/disks/soft/src/lmbench3/bin/x86_64-linux-gnu/'
         # LMBench: http://www.bitmover.com/lmbench
         self.papi_path = '/disks/soft/papi-4.4.0/bin/papi_avail'
+        # TODO change 4 to the actual number of memory levels (incl. caches and main memory)
+        self.memory_levels = 3
+        
+        # An array of Measurement objects for each level of the memory hierarchy
+        # starting with L1
+        self.datalatency = []  # data caches and main memory
+        self.instrlatency = []  # instruction caches
+
+        # Log file for debugging
         self.logfile = os.path.join(os.getcwd(),'X86.log')
+        
+        
+        # Architecture details (not measured)
+        self.instruction_caches = {}  # e.g., {'l1' : {'size': (32,'KB'), 'line_size': (64,'bytes'), 'associativity':'8-way set associative'}
+        self.data_caches = {} # similar to data caches
+        self.os_info = {} # e.g., {'os_name': 'Linux', 'os_release' : '2.6.35-28-generic'} etc.
+        self.tlb = {}  # similar to caches
+        self.memory = {} # e.g., {'total_size': (16080.64,'MB')}
+        self.processors = {} # e.g., {'processors': 8, 'brand' : 'Intel Xeon', 'model' : 'E5462', 'clock_speed': (2799.51,'MHz')}
 
         # The number of time to run the experiment for each measurement
         #self.reps = 5
@@ -40,7 +58,7 @@ class X86(AbstractPlatform):
         cmd = self.lmbench_path + 'bw_mem -P %s %s rd' % (procs,size)
 
         vals = []
-        self.log(cmd)
+        self._log(cmd)
         for i in range(0,int(reps)):
             """number of repetitions added as a parameter"""
             return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
@@ -48,65 +66,22 @@ class X86(AbstractPlatform):
             vals.append(float(val))
              
         params = {'metric':'mem_read_bw','size':s,'procs':procs,'reps':reps}
-        self.recordMeasurement(params, Measurement(get_stats(vals),units='MB/s',params=params))
+        self._recordMeasurement(params, Measurement(get_stats(vals),units='MB/s',params=params))
         return
 
-    def get_l1_read_latency(self, **kwargs):
+    def get_l1_read_latency(self, procs=1,reps=1):
         ''' Measure L1 read latency and record in self.measurements. '''
-        size = kwargs.get('size')
-        stride = kwargs.get('stride')
-        level = kwargs.get('level')
-        cmd = self.lmbench_path + 'lat_mem_rd %s %s' % (size, stride)
-        self.log(cmd)
-        #get output
-        return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
-        
-        #find only numbers without alpha characters
-        regex = '[-+]?[0-9]+(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)?'
-        stringresults = re.findall(regex, cmd_output)
-        val = []
-
-        #change strings to ints
-        for i in range(1, len(stringresults)):
-            val.append(float(stringresults[i]))
-
-        mes = { }
-        
-        #pair them up - 
-        for i in range(0, len(val), 2):
-           if(i+1 < len(val)):
-               mes[val[i]] = val[i+1] 
-        
-        #need to find the latency for the correct level (find jump)
-        jumps = self.findjump(val[1::2])
-
-        '''Create array of values up to the specified level'''
-        giveback = { }
-        l_count = 0
-        
-        #checks to make sure level searched for exists
-        if(len(jumps) <= int(level)):
-            #return cross section
-            for i in range(0, len(val), 2):
-                  if(i+1 < len(val)):
-                      #i is memory depth, i+1 is latency
-                      if((i+1) <= jumps[l_count]):
-                          giveback[val[i]] = val[i+1]
-                      else:
-                          if(l_count < int(level)):
-                              l_count+=1
-                              giveback[val[i]] = val[i+1]
-                          else:
-                              #reached correct level
-                              break
-        else:
-            #assume no jumps, return all data
-            giveback = mes
-
-        params = {'metric':'l1_read_latency', 'size':size, 'stride':stride}
-        self.recordMeasurement(params, giveback)
-
-        return
+        return self._get_read_latency(level=1, procs=procs, reps=reps)
+    
+    def get_l2_read_latency(self, procs=1,reps=1):
+        ''' Measure L2 read latency and record in self.measurements. '''
+        return self._get_read_latency(level=2, procs=procs,reps=reps)
+    
+    # TODO: add l3 function, but must check first whether machine has L3
+    
+    def get_mem_read_latency(self, procs=1,reps=1):
+        ''' Measure memory read latency and record in self.measurements. '''
+        return self._get_read_latency(level=3, procs=procs, reps=reps)
 
     def get_mem_write_bw(self, **kwargs):
          ''' Memory write bandwidth measurement with lmbench '''
@@ -161,7 +136,7 @@ class X86(AbstractPlatform):
                 cmd = self.lmbench_path + 'bw_mem -P %s %s wr' % (procs, str(x)+'m')
             else:
                 cmd = self.lmbench_path + 'bw_mem -P %s %s rd' %  (procs, str(x)+'m')
-            self.log(cmd)
+            self._log(cmd)
             #get read bandwidth for a specific size
             for i in range(0,int(reps)):
                 """number of repetitions added as a parameter"""
@@ -199,11 +174,13 @@ class X86(AbstractPlatform):
         #process vals 
         print best
         params = {'metric':'l1_read_bw','size':str(mem_size)+'m','procs':procs,'reps':reps}
-        self.recordMeasurement(params, Measurement(best,units='MB/s',params=params))
+        self._recordMeasurement(params, Measurement(best,units='MB/s',params=params))
 
         return
 
 
+    #-------- private methods ------------------------------------
+    
     def findjump(self, array):
         '''should find all jumps in a data set'''
         jumps = []
@@ -242,17 +219,92 @@ class X86(AbstractPlatform):
                     del jumps[i+1]
        
         return jumps
+    
 
-    def log(self, thestr):
+    def _get_read_latency(self, level=1, procs=1, reps=1):
+        ''' Measure L1 read latency and record in self.measurements. '''
+        if level>0: memindex = level - 1
+        else: memindex = level      # last level is indicated by -1
+                
+        # If we have already computed all latencies, just return the value
+        if len(self.datalatency) >= level:
+            return self.datalatency[memindex]
+
+        if level > self.memory_levels:
+            raise MeasurementException('Unrecognized memory level: %s (maximum levels = %d)' \
+                                       % (str(level),self.memory_levels))
+        cmd = self.lmbench_path + 'lat_mem_rd -P %s -N 1 %s %s' \
+              % (str(procs), '256M', '256')
+
+        self._log(cmd)
+        #get output
+        return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+
+        sizes = []
+        latencies = []   #  time in ns
+                
+        for line in cmd_output.split(os.linesep)[1:]:
+            if not line: continue
+            # process all lines except the first (which is just the size of the jump 
+            val1, val2 = line.split()           # the format is "number number"
+            # val1 is the log2(array_size) and val2 is time in nanoseconds
+            sizes.append(float(val1)*1024.0)
+            latencies.append(float(val2))  # size of test array in KB, time in ns
+
+
+        #need to find the latency for the correct level (find jump)
+        counter = 0
+        relative_tolerance = 2.0 # TODO: make this a parameter in config
+        old_i = 0
+        
+        #get differences between values to find biggest jump
+        if len(latencies) < 2: 
+            warn('Could not compute data read latencies at different memory levels')
+            return
+        for i in range(2,len(sizes),2):
+            distance = float(latencies[i]) / float(latencies[i-2]) 
+            if distance > relative_tolerance:
+                #print 'Found jump: ', counter+1, distance, latencies[i-1], old_i, i
+                # detected a jump
+                counter += 1
+                 
+                # the name of the metric
+                name = 'l' + str(counter) + '_read_latency'
+                
+                params = {'metric':name,'size':str(sizes[i-1])+'KB','procs':procs,'reps':reps}
+                mes = Measurement(get_stats(latencies[old_i+2:i-2]),units='ns',params=params)
+                self._recordMeasurement(params, mes)
+                self.datalatency.append(mes)
+                old_i = i + 1
+                # Skip the smaller sizes in the next level
+                if i < len(sizes)-3: i += 3
+
+            if counter > self.memory_levels: break  
+        
+        # Record the last level (memory)
+        counter += 1
+        params = {'metric':'mem_read_latency','size':str(sizes[i-1])+'KB','procs':procs,'reps':reps}
+        # Skip some of the smaller memory values since they are not indicative of larger sizes
+        mes = Measurement(get_stats(latencies[old_i+8:]),units='ns',params=params)
+        self._recordMeasurement(params, mes)
+        self.datalatency.append(mes)
+
+        if len(self.datalatency) < level:
+            warn('Could not compute data for memory level', level)
+            return None
+        
+        return self.datalatency[memindex]
+        
+
+    def _log(self, thestr):
         f = open(self.logfile,"a")
         f.write("%s\n" % thestr)
         f.close()
 
-    def recordMeasurement(self, params, measurement):
+    def _recordMeasurement(self, params, measurement):
         ''' Record the measurement and relevant parameters in the log file. '''
         key = str(params)
         self.measurements[key] = measurement
         f = open(self.logfile,"a")
         f.write("%s\n" % str(self.measurements[key]))
         f.close()
-

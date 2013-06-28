@@ -1,10 +1,3 @@
-# This file is part of Contractor
-# Original author: James Amundson, amundson@fnal.gov
-# (c) 2007-2010 Fermi Research Alliance, LLC
-# (c) 2011 Tech-X Corporation
-# (c) 2013 Uchicago LLC
-# For copying information, see the file LICENSE
-
 #!/usr/bin/env python
 
 import os,os.path,sys,glob,time,subprocess
@@ -91,9 +84,9 @@ if sys.stdout.isatty():
     error_pre = "\x1B[00;31m"
     error_post = "\x1B[00m"
 else:
-    command_pre = "*** contractor command: "
+    command_pre = "*** perfexp command: "
     command_post = ""
-    time_pre = "--- contractor time: "
+    time_pre = "--- perfexp time: "
     time_post = ""
     error_msg_pre = "XXXXXXXXXXXXXX "
     error_msg_post = ""
@@ -188,10 +181,10 @@ def system_or_die(command_in, log_file=None, command_log_file=None,
             if raise_exception:
                 raise RuntimeError, "%s failed" % command_in
             if log_file:
-                print "%scontractor failed command output (final 10 lines):%s" % \
+                print "%sperfexp failed command output (final 10 lines):%s" % \
                       (error_msg_pre,error_post)
                 os.system('tail -n 10 %s' % log_file)
-                print "%scontractor failed command output end.%s" % \
+                print "%sperfexp failed command output end.%s" % \
                       (error_msg_pre,error_post)
                 sys.stdout.write("%slog file is %s%s\n" % \
                                  (error_pre,log_file,error_post))
@@ -251,13 +244,13 @@ def check_shell():
             Globals().shell = '/bin/ksh'
         else:
             err('default shell is /bin/dash, which will likely cause many problems downstream. Giving up.')
-        warn('default shell is /bin/dash. Contractor will use ' + Globals().shell + ', but you will likely encounter problems in other tools.')
+        warn('default shell is /bin/dash. perfexp will use ' + Globals().shell + ', but you will likely encounter problems in other tools.')
     
  
 def generate_error_archive(rootdir, dirs):
     from configuration import check_bin
     d = os.getcwd()
-    save = os.path.join(os.environ["HOME"], "mbcontractor-tools-logs.tar")
+    save = os.path.join(os.environ["HOME"], "perfexp-logs.tar")
 
     if rootdir: os.chdir(rootdir)
     if os.path.exists(save): os.unlink(save)
@@ -302,9 +295,9 @@ def send_email(file, to, server="localhost"):
     msg['From'] = fro
     msg['To'] = COMMASPACE.join(to)
     msg['Date'] = formatdate(localtime=True)
-    msg['Subject'] = 'error log for mbcontractor-tools-contractor build'
+    msg['Subject'] = 'error log for perfexp'
 
-    text = 'MBContractor toolchain build log: ' + msg['Date']
+    text = 'PerfExp build log: ' + msg['Date']
     msg.attach( MIMEText(text) )
 
     # Encode file and atach

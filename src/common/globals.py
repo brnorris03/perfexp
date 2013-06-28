@@ -3,7 +3,7 @@
 # (c) 2010-2013 UChicago Argonne, LLC
 # For copying information, see the file LICENSE
 
-import logging, os
+import logging, os, sys, distutils.sysconfig
 import ConfigParser
 
 # Global singleton class for various runtime options 
@@ -53,10 +53,27 @@ class Globals_Singleton:
             self.logger.setLevel(logging.INFO)
 #        pass
 
+        # Include location of perfexp in PYTHONPATH
+        # include the annotation tool in the Python's search path
+        abs_path = os.path.realpath(sys.argv[0])
+        cur_dir = os.path.dirname(abs_path)
+        dirs=[]
+        if os.path.basename(cur_dir) == 'bin':
+            # installed location
+            base_dir = os.path.join(os.path.dirname(cur_dir),'lib','python' + distutils.sysconfig.get_python_version(),'site-packages')
+            dirs = [base_dir, os.path.join(base_dir,'perfexp')]
+            self.mydir = dirs[1]
+        else:
+            # source tree (development) location
+            dirs = [os.path.join(cur_dir,'src')]
+            self.mydir = dirs[0]
+            sys.path.extend(dirs)
+
+
         # initialize configuration file parameters
         self.configparams = {'lmbenchdir':None, 'blackjackdir':None, 'skampidir':None, 'papidir':None,'taudir':None,'hpctoolkitdir':None,'perfsuitedir':None}
         self.config = ConfigParser.ConfigParser()
-        self.config_file = os.environ.get("PERFEXPDIR") + '/src/config/config.txt'
+        self.config_file = os.path.join(self.mydir,'config','config.txt')
         
     def _processConfigFile(self):
         

@@ -1,4 +1,5 @@
 from sys import float_info
+from common.messages import debug
 
 class AbstractPlatform:
     def __init__(self):
@@ -35,8 +36,7 @@ class AbstractPlatform:
         This method dispatches to the appropriate function.
         '''
         methodname = 'self.get_' + metric + '(**kwargs)'
-        eval(methodname)
-        return
+        return eval(methodname)
 
     def get_papi_avail_caller(self, **kwargs):
         '''gets system info on machines that have papi installed'''
@@ -61,6 +61,14 @@ class AbstractPlatform:
     def get_l1_read_latency(self, **kwargs):
         ''' Measure L1 read latency and record in self.measurements. '''
         raise NotImplementedError
+    
+    def get_l2_read_latency(self, **kwargs):
+        ''' Measure L1 read latency and record in self.measurements. '''
+        raise NotImplementedError
+    
+    def get_l3_read_latency(self, **kwargs):
+        ''' Measure L1 read latency and record in self.measurements. '''
+        raise NotImplementedError
 
     def get_l1_read_bw(self, **kwargs):
         ''' Measure L1 read bandwidth and record in self.measurements. '''
@@ -69,14 +77,23 @@ class AbstractPlatform:
 
 
 class Measurement:
-    def __init__(self, stats, units, params=[]):
+    def __init__(self, stats, units, params={}):
+        if len(stats) < 3: 
+           raise MeasurementException('Unexpected first argument of the Measurement constructor: stats should be a 3-element tuple (mean, min, max)')
         self.mean = stats[0]
         self.min = stats[1]
         self.max = stats[2]
         self.units = units
         self.params = params
+        debug(str(self))
 
     def __repr__(self):
         ''' print object contents '''
         return "%s: {'mean':%s,'min':%s,'max':%s,'units':%s}"  \
             % (str(self.params), str(self.mean),str(self.min),str(self.max),self.units)
+
+class MeasurementException(Exception):
+    def __init__(self, value):
+        self.msg = value
+    def __str__(self):
+        return repr(self.value)
