@@ -19,15 +19,16 @@ def main():
     arch.help()
 
     # test various metrics computations
-    arch.measure('papi_avail_caller')
-    arch.measure('mem_write_bw', procs='1', size='256m', reps='5')
-    arch.measure('mem_read_bw', procs='1', size='256m', reps='5')
+    arch.get_hardware_specs()
+#arch.measure('get_hardware_specs')
+    #arch.measure('mem_write_bw', procs='1', size='256m', reps='5')
+    #arch.measure('mem_read_bw', procs='1', size='256m', reps='5')
     #arch.measure('mem_read_bw', procs='2', size='256m', reps='1')
-    print arch.measure('l1_read_latency', procs='1', reps='1')
-    print arch.measure('l2_read_latency', procs='1', reps='1')
-    print arch.measure('mem_read_latency', procs='1', reps='1')
+    #print arch.measure('l1_read_latency', procs='1', reps='1')
+    #print arch.measure('l2_read_latency', procs='1', reps='1')
+    #print arch.measure('mem_read_latency', procs='1', reps='1')
 
-    arch.measure('l1_read_bw', procs='1', size='258', next_size = '265', reps='1')
+    #arch.measure('l1_read_bw', procs='1', size='258', next_size = '265', reps='1')
 
     # Print all measurements
     for key,val in arch.measurements.items():

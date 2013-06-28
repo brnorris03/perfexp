@@ -13,6 +13,8 @@ class X86(AbstractPlatform):
         self.lmbench_path = '/disks/soft/src/lmbench3/bin/x86_64-linux-gnu/'
         # LMBench: http://www.bitmover.com/lmbench
         self.papi_path = '/disks/soft/papi-4.4.0/bin/papi_avail'
+        
+
         # TODO change 4 to the actual number of memory levels (incl. caches and main memory)
         self.memory_levels = 3
         
@@ -45,10 +47,61 @@ class X86(AbstractPlatform):
     def get_papi_avail_caller(self, **kwargs):
         '''if papi is on a machine, then it will help gather the data'''
         cmd = self.papi_path
-        self.log(cmd)
+        self._log(cmd)
         return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
         #will need to parse output, store it and make sure the naming is standardized
         return
+
+    def get_hardware_specs(self, **kwargs):
+        '''try multiple commands and gather hardware information'''
+        #hardware_commands - assume linux queries will work on x86 system
+        hardware_cache_sizes = 'lscpu'
+        hardware_os = 'uname -a'
+        hardware_total_mem = 'grep MemTotal /proc/meminfo'
+        hardware_cpu_count = 'nproc'
+
+        #get the number of processors
+        self._log(hardware_cpu_count)
+        return_code, cmd_output = system_or_die(hardware_cpu_count, log_file = self.logfile)
+        cmd_output = int(cmd_output) 
+        self.processors['processors']= cmd_output
+
+        #extract all useful data out of lscpu
+        self._log(hardware_cache_sizes)
+        return_code, cmd_output = system_or_die(hardware_cache_sizes, log_file = self.logfile)
+        
+        for line in cmd_output.split(os.linesep):
+            line = line.split(':')
+            if(len(line) > 1):
+                line[1] = line[1].strip()
+
+            if(line[0].find('MHz') > 0):
+                self.processors['clock_speed'] = float(line[1])
+
+            if(line[0].find('cache') > 0):
+                big = {}
+                cache_type = line[0].split()
+                if(cache_type[0].find('i') > 0):
+                    vals = cache_type[0].split('i')
+                    big['size'] = line[1]
+                    self.instruction_caches[vals[0]] = big
+                else:
+                    vals = cache_type[0].split('d')
+                    big['size'] = line[1]
+                    self.data_caches[vals[0]] = big
+
+        #extract all useful data out of uname -a
+        self._log(hardware_os)
+        return_code, cmd_output = system_or_die(hardware_os, log_file = self.logfile)
+
+        cmd_output = cmd_output.split()
+        self.os_info['os_name'] = cmd_output[0]
+        self.os_info['os_release'] = cmd_output[2]
+        print self.os_info
+
+        return
+               
+                
 
     def get_mem_read_bw(self, **kwargs): 
         ''' Memory read bandwidth measurement with lmbench '''
@@ -84,43 +137,30 @@ class X86(AbstractPlatform):
         return self._get_read_latency(level=3, procs=procs, reps=reps)
 
     def get_mem_write_bw(self, **kwargs):
-         ''' Memory write bandwidth measurement with lmbench '''
-         size = kwargs.get('size')
-         procs = kwargs.get('procs')
-         reps = kwargs.get('reps')
-         cmd = self.lmbench_path + 'bw_mem -P %s %s wr' % (procs, size)
-
-         vals = []
-         self.log(cmd)
-         
-        #run command for whole of memory
-         for i in range(0,int(reps)):
-             """number of repetitions added as a parameter"""
-             return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
-             s,val = cmd_output.split()
-             vals.append(float(val))     
-
-         params = {'metric':'mem_write_bw','size':s,'procs':procs,'reps':reps}
-         self.recordMeasurement(params, Measurement(get_stats(vals),units='MB/s',params=params))
-         return
-
+        ''' Memory write bandwidth measurement with lmbench '''
+        procs = kwargs.get('procs')
+        reps = kwargs.get('reps')
+        start = int(kwargs.get('size'))
+        self.get_bw('mem_write_bw', procs=procs, size=start, next_size=start, reps=reps, bw_type='wr') 
+        return
+    
     def get_l1_write_bw(self, **kwargs):
         ''' Measure L1 write bandwidth and record in self.measurements. '''
-        
+        self
         procs = kwargs.get('procs')
         reps = kwargs.get('reps')
         
         #depending on size (which one you're looking for) can start around that range
         start = int(kwargs.get('size'))
         end = int(kwargs.get('next_size'))
-        self.measure('l1_read_bw', procs=procs, size=size, next_size=next_size, reps=reps, kind='write') 
+        self.get_bw('l1_write_bw', procs=procs, size=start, next_size=end, reps=reps, bw_type='wr') 
         return
     
-    def get_l1_read_bw(self, **kwargs):
+    def get_bw(self, **kwargs):
         ''' Measure L1 read bandwidth and record in self.measurements. '''
         procs = kwargs.get('procs')
         reps = kwargs.get('reps')
-      
+        bw_type = kwargs.get('bw_type')
         #depending on size (which one you're looking for) can start around that range
         start = int(kwargs.get('size'))
         end = int(kwargs.get('next_size'))
@@ -132,10 +172,7 @@ class X86(AbstractPlatform):
 
         for x in range(start, end):
             vals = []
-            if(kwargs.get('kind') == 'write'):
-                cmd = self.lmbench_path + 'bw_mem -P %s %s wr' % (procs, str(x)+'m')
-            else:
-                cmd = self.lmbench_path + 'bw_mem -P %s %s rd' %  (procs, str(x)+'m')
+            cmd = self.lmbench_path + 'bw_mem -P %s %s %s' % (procs, str(x)+'m', bw_type)
             self._log(cmd)
             #get read bandwidth for a specific size
             for i in range(0,int(reps)):
