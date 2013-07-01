@@ -13,7 +13,9 @@ class X86(AbstractPlatform):
         self.lmbench_path = '/disks/soft/src/lmbench3/bin/x86_64-linux-gnu/'
         # LMBench: http://www.bitmover.com/lmbench
         self.papi_path = '/disks/soft/papi-4.4.0/bin/papi_avail'
-        
+        self.blackjack_caches_path = '/homes/kachalas/blackjack/trunk/Cache_Discovery_Benchmarks'
+        self.blackjack_liverange_path = '/homes/kachalas/blackjack/trunk/LiveRange'
+        #others couldn't get makefile to work right  and core count fails
 
         # TODO change 4 to the actual number of memory levels (incl. caches and main memory)
         self.memory_levels = 3
@@ -44,6 +46,23 @@ class X86(AbstractPlatform):
     def runBenchmark(self, cmd):
         # TODO: run entire benchmark 
         return
+
+    def get_blackjack_avail_caller(self, **kwargs):
+        '''if blackjack in on a machine, can run this method'''
+        #cmd = 'cd '+self.blackjack_caches_path+' && make'
+        #apparently bellow cmd doesn't work on solaris 10, AIX, or HP-UX 11.23
+        cmd = 'make -C ' + self.blackjack_caches_path  
+        self._log(cmd)
+        return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
+        
+
+
+        cmd = 'make -C '+self.blackjack_liverange_path
+        self._log(cmd)
+        return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
+
+        return
+        
 
     def get_papi_avail_caller(self, **kwargs):
         '''if papi is on a machine, then it will help gather the data'''
@@ -160,6 +179,27 @@ class X86(AbstractPlatform):
         self.get_bw('mem_read_bw', procs = procs, size=start, next_size=start, reps=reps, bw_type='rd')
         return
 
+    def get_l1_read_bw(self, **kwargs):
+        ''' Measure L1 read bandwidth and record in self.measurements. '''
+        procs = kwargs.get('procs')
+        reps = kwargs.get('reps')
+        #range of l1 cache size - can be acquired from hardware specs
+        start = int(kwargs.get('size'))
+        end = int(kwargs.get('next_size'))
+        self.get_bw('l1_read_bw', procs=procs, size=start, next_size=end, reps=reps, bw_type='rd') 
+        return
+
+    def get_l2_read_bw(self, **kwargs):
+        ''' Measure L2 read bandwidth and record in self.measurements. '''
+        procs = kwargs.get('procs')
+        reps = kwargs.get('reps')
+        #range of l2 cache size
+        start = int(kwargs.get('size'))
+        end = int(kwargs.get('next_size'))
+        #call bandwidth method
+        self.get_bw('l2_read_bw', procs=procs, size=start, next_size=end, reps=reps, bw_type='rd') 
+        return
+
     def get_mem_write_bw(self, **kwargs):
         ''' Memory write bandwidth measurement with lmbench '''
         procs = kwargs.get('procs')
@@ -170,18 +210,27 @@ class X86(AbstractPlatform):
     
     def get_l1_write_bw(self, **kwargs):
         ''' Measure L1 write bandwidth and record in self.measurements. '''
-        self
         procs = kwargs.get('procs')
         reps = kwargs.get('reps')
-        
-        #depending on size (which one you're looking for) can start around that range
+        #range of l1 cache size
         start = int(kwargs.get('size'))
         end = int(kwargs.get('next_size'))
         self.get_bw('l1_write_bw', procs=procs, size=start, next_size=end, reps=reps, bw_type='wr') 
         return
+
+    def get_l2_write_bw(self, **kwargs):
+        ''' Measure L2 write bandwidth and record in self.measurements. '''
+        procs = kwargs.get('procs')
+        reps = kwargs.get('reps')
+        #range of l2 cache size
+        start = int(kwargs.get('size'))
+        end = int(kwargs.get('next_size'))
+        #call bandwidth method
+        self.get_bw('l2_write_bw', procs=procs, size=start, next_size=end, reps=reps, bw_type='wr') 
+        return
     
     def get_bw(self, **kwargs):
-        ''' Measure L1 read bandwidth and record in self.measurements. '''
+        ''' Measure bandwidth and record in self.measurements. '''
         procs = kwargs.get('procs')
         reps = kwargs.get('reps')
         bw_type = kwargs.get('bw_type')
