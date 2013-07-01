@@ -49,7 +49,22 @@ class X86(AbstractPlatform):
         cmd = self.papi_path
         self._log(cmd)
         return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
-        #will need to parse output, store it and make sure the naming is standardized
+        
+        # parsed output for model and brand
+        for line in cmd_output.split(os.linesep):
+            line = line.split(':')
+           
+            if(len(line) > 1):
+                #get model information and self store
+                if(line[0].find('Model') >= 0):
+                    line = line[1].split('CPU')
+                    line[0] = line[0].lstrip()
+                    line[0] = line[0].rstrip()
+                    self.processors['brand'] = line[0]
+                    line = line[1].split('@')
+                    line = line[0].strip()
+                    self.processors['model'] = line
+
         return
 
     def get_hardware_specs(self, **kwargs):
@@ -70,6 +85,7 @@ class X86(AbstractPlatform):
         self._log(hardware_cache_sizes)
         return_code, cmd_output = system_or_die(hardware_cache_sizes, log_file = self.logfile)
         
+        #getting the vendor info
         for line in cmd_output.split(os.linesep):
             line = line.split(':')
             if(len(line) > 1):
@@ -97,7 +113,7 @@ class X86(AbstractPlatform):
         cmd_output = cmd_output.split()
         self.os_info['os_name'] = cmd_output[0]
         self.os_info['os_release'] = cmd_output[2]
-        print self.os_info
+        
 
         #get hardware memory size from /proc/meminfo
         self._log(hardware_total_mem)
@@ -107,7 +123,8 @@ class X86(AbstractPlatform):
         cmd_output = cmd_output[1].split()
         cmd_output[0] = float(cmd_output[0])
         self.memory['total_size'] =  cmd_output
-        print self.memory
+        
+        
         return
                
                 
