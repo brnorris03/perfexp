@@ -99,9 +99,15 @@ class X86(AbstractPlatform):
         self.os_info['os_release'] = cmd_output[2]
         print self.os_info
 
+        #get hardware memory size from /proc/meminfo
         self._log(hardware_total_mem)
         return_code, cmd_output = system_or_die(hardware_total_mem, log_file = self.logfile)
-
+        cmd_output = cmd_output.split(':')
+        cmd_output[1] = cmd_output[1].strip()
+        cmd_output = cmd_output[1].split()
+        cmd_output[0] = float(cmd_output[0])
+        self.memory['total_size'] =  cmd_output
+        print self.memory
         return
                
                 
