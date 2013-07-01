@@ -35,6 +35,7 @@ class X86(AbstractPlatform):
         self.memory = {} # e.g., {'total_size': (16080.64,'MB')}
         self.processors = {} # e.g., {'processors': 8, 'brand' : 'Intel Xeon', 'model' : 'E5462', 'clock_speed': (2799.51,'MHz')}
 
+        self.get_hardware_data() # gathers hardware intel 
         # The number of time to run the experiment for each measurement
         #self.reps = 5
         pass
@@ -124,29 +125,9 @@ class X86(AbstractPlatform):
         cmd_output[0] = float(cmd_output[0])
         self.memory['total_size'] =  cmd_output
         
-        
+        self.get_papi_avail_caller()
         return
                
-                
-
-    def get_mem_read_bw(self, **kwargs): 
-        ''' Memory read bandwidth measurement with lmbench '''
-        size = kwargs.get('size')
-        procs = kwargs.get('procs')
-        reps = kwargs.get('reps')
-        cmd = self.lmbench_path + 'bw_mem -P %s %s rd' % (procs,size)
-
-        vals = []
-        self._log(cmd)
-        for i in range(0,int(reps)):
-            """number of repetitions added as a parameter"""
-            return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
-            s,val = cmd_output.split()
-            vals.append(float(val))
-             
-        params = {'metric':'mem_read_bw','size':s,'procs':procs,'reps':reps}
-        self._recordMeasurement(params, Measurement(get_stats(vals),units='MB/s',params=params))
-        return
 
     def get_l1_read_latency(self, procs=1,reps=1):
         ''' Measure L1 read latency and record in self.measurements. '''
@@ -156,11 +137,28 @@ class X86(AbstractPlatform):
         ''' Measure L2 read latency and record in self.measurements. '''
         return self._get_read_latency(level=2, procs=procs,reps=reps)
     
-    # TODO: add l3 function, but must check first whether machine has L3
+    def get_l3_read_latency(self, procs=1,reps=2):
+        '''Measure L3 read latency if l3 cache exists and record in self.measurements'''      
+        if('L3' in self.data_caches):
+            return self.get_read_latency(level=3, procs=procs,reps=reps)
+        else:
+            return 'ERROR: No L3 cache'
     
     def get_mem_read_latency(self, procs=1,reps=1):
         ''' Measure memory read latency and record in self.measurements. '''
-        return self._get_read_latency(level=3, procs=procs, reps=reps)
+        if('L3' in self.data_caches):
+            return self._get_read_latency(level=4, procs=procs, reps=reps)
+        else:
+            return self._get_read_latency(level=3, procs=procs, reps=reps)
+
+
+    def get_mem_read_bw(self, **kwargs): 
+        ''' Memory read bandwidth measurement with lmbench '''
+        start = int(kwargs.get('size'))
+        procs = kwargs.get('procs')
+        reps = kwargs.get('reps')
+        self.get_bw('mem_read_bw', procs = procs, size=start, next_size=start, reps=reps, bw_type='rd')
+        return
 
     def get_mem_write_bw(self, **kwargs):
         ''' Memory write bandwidth measurement with lmbench '''
