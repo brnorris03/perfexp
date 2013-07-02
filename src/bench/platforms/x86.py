@@ -19,7 +19,10 @@ class X86(AbstractPlatform):
 
         # TODO change 4 to the actual number of memory levels (incl. caches and main memory)
         self.memory_levels = 3
-        
+        # The number of time to run the experiment for each measurement
+        self.reps = 2
+
+
         # An array of Measurement objects for each level of the memory hierarchy
         # starting with L1
         self.datalatency = []  # data caches and main memory
@@ -40,13 +43,12 @@ class X86(AbstractPlatform):
         self.get_hardware_specs() # gathers hardware intel 
 
         #get cache details and store here
-        self.rd_data_bw = []
-        self.wr_data_bw = []
+        self.rd_data_bw = {}
+        self.wr_data_bw = {}
         self.fillbw()
-        print rd_data_bw
-        print wr_data_bw
-        # The number of time to run the experiment for each measurement
-        #self.reps = 5
+        print self.rd_data_bw
+        print self.wr_data_bw
+        
         pass
 
 
@@ -153,7 +155,7 @@ class X86(AbstractPlatform):
         
         #calls to other benchmarks
         self.get_papi_avail_caller()
-        #self.get_blackjack_avail_caller()
+        self.get_blackjack_avail_caller()
         print self.memory
         print self.data_caches
         return
@@ -188,7 +190,7 @@ class X86(AbstractPlatform):
         procs = kwargs.get('procs')
         reps = kwargs.get('reps')
         gran = kwargs.get('gran')
-        self.get_bw('mem_read_bw', procs = procs, size=start, next_size=start, gran=gran, reps=reps, bw_type='rd')
+        self.get_bw(memo='mem_read_bw', procs = procs, size=start, next_size=start, gran=gran, reps=reps, bw_type='rd')
         return
 
     def get_l1_read_bw(self, **kwargs):
@@ -211,7 +213,7 @@ class X86(AbstractPlatform):
         end = int(kwargs.get('next_size'))
         gran = kwargs.get('gran')
         #call bandwidth method
-        self.get_bw('l2_read_bw', procs=procs, size=start, next_size=end, gran=gran, reps=reps, bw_type='rd') 
+        self.get_bw(memo='l2_read_bw', procs=procs, size=start, next_size=end, gran=gran, reps=reps, bw_type='rd') 
         return
 
     def get_mem_write_bw(self, **kwargs):
@@ -220,7 +222,7 @@ class X86(AbstractPlatform):
         reps = kwargs.get('reps')
         start = int(kwargs.get('size'))
         gran = kwargs.get('gran')
-        self.get_bw('mem_write_bw', procs=procs, size=start, next_size=start, gran=gran, reps=reps, bw_type='wr') 
+        self.get_bw(memo='mem_write_bw', procs=procs, size=start, next_size=start, gran=gran, reps=reps, bw_type='wr') 
         return
     
     def get_l1_write_bw(self, **kwargs):
@@ -231,7 +233,7 @@ class X86(AbstractPlatform):
         start = int(kwargs.get('size'))
         end = int(kwargs.get('next_size'))
         gran = kwargs.get('gran')
-        self.get_bw('l1_write_bw', procs=procs, size=start, next_size=end,gran=gran, reps=reps, bw_type='wr') 
+        self.get_bw(memo='l1_write_bw', procs=procs, size=start, next_size=end, gran=gran, reps=reps, bw_type='wr') 
         return
 
     def get_l2_write_bw(self, **kwargs):
@@ -243,11 +245,12 @@ class X86(AbstractPlatform):
         end = int(kwargs.get('next_size'))
         gran = kwargs.get('gran')
         #call bandwidth method
-        self.get_bw('l2_write_bw', procs=procs, size=start, next_size=end,gran=gran, reps=reps, bw_type='wr') 
+        self.get_bw(memo='l2_write_bw', procs=procs, size=start, next_size=end, gran=gran, reps=reps, bw_type='wr') 
         return
     
     def get_bw(self, **kwargs):
         ''' Measure bandwidth and record in self.measurements. '''
+        memo = kwargs.get('memo')
         procs = kwargs.get('procs')
         reps = kwargs.get('reps')
         bw_type = kwargs.get('bw_type')
@@ -283,6 +286,7 @@ class X86(AbstractPlatform):
         #get the jump location in the range
         #what do you do if the jump is not in the range???
         getback = self.findjump(means)
+        print getback
         if(len(getback) == 1):
             track = getback[0]
         else:
@@ -300,10 +304,10 @@ class X86(AbstractPlatform):
 
         #process vals 
         print best
-        params = {'metric':'l1_read_bw','size':str(mem_size)+'m','procs':procs,'reps':reps}
+        params = {'metric':memo,'size':str(mem_size)+'m','procs':procs,'reps':reps}
         self._recordMeasurement(params, Measurement(best,units='MB/s',params=params))
 
-        return
+        return track
 
 
     #-------- private methods ------------------------------------
@@ -427,22 +431,21 @@ class X86(AbstractPlatform):
         zone = 3
         #get bw for main memory
         big = self.memory['total_size']
-        print big
-        rd_data_bw[0] = self.get_bw('mem_read_bw', procs=1, size=(big-zone), next_size=(big+zone), gran='k',reps=reps, bw_type='rd')
-        wr_data_bw[0] = self.get_bw('mem_write_bw', procs=1, size=(big-zone), next_size=(big+zone), gran='k',reps=reps, bw_type='wr')
+        big[0] = big[0]/1000
+        rd_data_bw[mem] = self.get_bw(memo='mem_read_bw', procs=1, size=(big[0]-zone), next_size=(big[0]+zone), gran='m',reps=self.reps, bw_type='rd')
+        wr_data_bw[mem] = self.get_bw(memo='mem_write_bw', procs=1, size=(big[0]-zone), next_size=(big[0]+zone), gran='m',reps=self.reps, bw_type='wr')
+
         #should get the correct bws for the levels of memory
         for k,v in self.data_caches.iteritems():
             #get k into form
-            em, num = k.split('L')
-            num = int(num)
             k = k.lower()
             #get correct sizes
-            v=v.lower()
+            v=v['size'].lower()
             v, em = v.split('k')
             v = int(v)
             #populate arrays with levels of cache in corresponding cells
-            rd_data_bw[num] = self.get_bw(k+'_read_bw', procs=1, size=(v-zone), next_size=(v+zone), gran='k',reps=reps, bw_type='rd')
-            wr_data_bw[num] = self.get_bw(k+'_write_bw', procs=1, size=(v-zone), next_size=(v+zone), gran='k',reps=reps, bw_type='wr')
+            self.rd_data_bw[k] = self.get_bw(memo=k+'_read_bw', procs=1, size=(v-zone), next_size=(v+zone), gran='k',reps=self.reps, bw_type='rd')
+            self.wr_data_bw[k] = self.get_bw(memo=k+'_write_bw', procs=1, size=(v-zone), next_size=(v+zone), gran='k',reps=self.reps, bw_type='wr')
 
         return
 
