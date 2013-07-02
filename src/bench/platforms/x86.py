@@ -13,7 +13,7 @@ class X86(AbstractPlatform):
         self.lmbench_path = '/disks/soft/src/lmbench3/bin/x86_64-linux-gnu/'
         # LMBench: http://www.bitmover.com/lmbench
         self.papi_path = '/disks/soft/papi-4.4.0/bin/papi_avail'
-        self.blackjack_caches_path = '/homes/kachalas/blackjack/trunk/Cache_Discovery_Benchmarks'
+        self.blackjack_caches_path = '/homes/kachalas/blackjack/trunk/Cache_Discovery_Benchmakrs'
         self.blackjack_liverange_path = '/homes/kachalas/blackjack/trunk/LiveRange'
         #others couldn't get makefile to work right  and core count fails
 
@@ -36,8 +36,15 @@ class X86(AbstractPlatform):
         self.tlb = {}  # similar to caches
         self.memory = {} # e.g., {'total_size': (16080.64,'MB')}
         self.processors = {} # e.g., {'processors': 8, 'brand' : 'Intel Xeon', 'model' : 'E5462', 'clock_speed': (2799.51,'MHz')}
+        # fill architecture details
+        self.get_hardware_specs() # gathers hardware intel 
 
-        self.get_hardware_data() # gathers hardware intel 
+        #get cache details and store here
+        self.rd_data_bw = []
+        self.wr_data_bw = []
+        self.fillbw()
+        print rd_data_bw
+        print wr_data_bw
         # The number of time to run the experiment for each measurement
         #self.reps = 5
         pass
@@ -144,7 +151,11 @@ class X86(AbstractPlatform):
         cmd_output[0] = float(cmd_output[0])
         self.memory['total_size'] =  cmd_output
         
+        #calls to other benchmarks
         self.get_papi_avail_caller()
+        #self.get_blackjack_avail_caller()
+        print self.memory
+        print self.data_caches
         return
                
 
@@ -176,7 +187,8 @@ class X86(AbstractPlatform):
         start = int(kwargs.get('size'))
         procs = kwargs.get('procs')
         reps = kwargs.get('reps')
-        self.get_bw('mem_read_bw', procs = procs, size=start, next_size=start, reps=reps, bw_type='rd')
+        gran = kwargs.get('gran')
+        self.get_bw('mem_read_bw', procs = procs, size=start, next_size=start, gran=gran, reps=reps, bw_type='rd')
         return
 
     def get_l1_read_bw(self, **kwargs):
@@ -186,7 +198,8 @@ class X86(AbstractPlatform):
         #range of l1 cache size - can be acquired from hardware specs
         start = int(kwargs.get('size'))
         end = int(kwargs.get('next_size'))
-        self.get_bw('l1_read_bw', procs=procs, size=start, next_size=end, reps=reps, bw_type='rd') 
+        gran = kwargs.get('gran')
+        self.get_bw('l1_read_bw', procs=procs, size=start, next_size=end, gran=gran, reps=reps, bw_type='rd') 
         return
 
     def get_l2_read_bw(self, **kwargs):
@@ -196,8 +209,9 @@ class X86(AbstractPlatform):
         #range of l2 cache size
         start = int(kwargs.get('size'))
         end = int(kwargs.get('next_size'))
+        gran = kwargs.get('gran')
         #call bandwidth method
-        self.get_bw('l2_read_bw', procs=procs, size=start, next_size=end, reps=reps, bw_type='rd') 
+        self.get_bw('l2_read_bw', procs=procs, size=start, next_size=end, gran=gran, reps=reps, bw_type='rd') 
         return
 
     def get_mem_write_bw(self, **kwargs):
@@ -205,7 +219,8 @@ class X86(AbstractPlatform):
         procs = kwargs.get('procs')
         reps = kwargs.get('reps')
         start = int(kwargs.get('size'))
-        self.get_bw('mem_write_bw', procs=procs, size=start, next_size=start, reps=reps, bw_type='wr') 
+        gran = kwargs.get('gran')
+        self.get_bw('mem_write_bw', procs=procs, size=start, next_size=start, gran=gran, reps=reps, bw_type='wr') 
         return
     
     def get_l1_write_bw(self, **kwargs):
@@ -215,7 +230,8 @@ class X86(AbstractPlatform):
         #range of l1 cache size
         start = int(kwargs.get('size'))
         end = int(kwargs.get('next_size'))
-        self.get_bw('l1_write_bw', procs=procs, size=start, next_size=end, reps=reps, bw_type='wr') 
+        gran = kwargs.get('gran')
+        self.get_bw('l1_write_bw', procs=procs, size=start, next_size=end,gran=gran, reps=reps, bw_type='wr') 
         return
 
     def get_l2_write_bw(self, **kwargs):
@@ -225,8 +241,9 @@ class X86(AbstractPlatform):
         #range of l2 cache size
         start = int(kwargs.get('size'))
         end = int(kwargs.get('next_size'))
+        gran = kwargs.get('gran')
         #call bandwidth method
-        self.get_bw('l2_write_bw', procs=procs, size=start, next_size=end, reps=reps, bw_type='wr') 
+        self.get_bw('l2_write_bw', procs=procs, size=start, next_size=end,gran=gran, reps=reps, bw_type='wr') 
         return
     
     def get_bw(self, **kwargs):
@@ -237,7 +254,7 @@ class X86(AbstractPlatform):
         #depending on size (which one you're looking for) can start around that range
         start = int(kwargs.get('size'))
         end = int(kwargs.get('next_size'))
-
+        gran = kwargs.get('gran')
         #have a max in case findjump returns empty
         max_means = -1 
         means = []
@@ -245,7 +262,7 @@ class X86(AbstractPlatform):
 
         for x in range(start, end):
             vals = []
-            cmd = self.lmbench_path + 'bw_mem -P %s %s %s' % (procs, str(x)+'m', bw_type)
+            cmd = self.lmbench_path + 'bw_mem -P %s %s %s' % (procs, str(x)+gran, bw_type)
             self._log(cmd)
             #get read bandwidth for a specific size
             for i in range(0,int(reps)):
@@ -405,6 +422,29 @@ class X86(AbstractPlatform):
         
         return self.datalatency[memindex]
         
+    def fillbw(self, **kwargs):
+        #zone is how much above and below memory size to check
+        zone = 3
+        #get bw for main memory
+        big = self.memory['total_size']
+        print big
+        rd_data_bw[0] = self.get_bw('mem_read_bw', procs=1, size=(big-zone), next_size=(big+zone), gran='k',reps=reps, bw_type='rd')
+        wr_data_bw[0] = self.get_bw('mem_write_bw', procs=1, size=(big-zone), next_size=(big+zone), gran='k',reps=reps, bw_type='wr')
+        #should get the correct bws for the levels of memory
+        for k,v in self.data_caches.iteritems():
+            #get k into form
+            em, num = k.split('L')
+            num = int(num)
+            k = k.lower()
+            #get correct sizes
+            v=v.lower()
+            v, em = v.split('k')
+            v = int(v)
+            #populate arrays with levels of cache in corresponding cells
+            rd_data_bw[num] = self.get_bw(k+'_read_bw', procs=1, size=(v-zone), next_size=(v+zone), gran='k',reps=reps, bw_type='rd')
+            wr_data_bw[num] = self.get_bw(k+'_write_bw', procs=1, size=(v-zone), next_size=(v+zone), gran='k',reps=reps, bw_type='wr')
+
+        return
 
     def _log(self, thestr):
         f = open(self.logfile,"a")
