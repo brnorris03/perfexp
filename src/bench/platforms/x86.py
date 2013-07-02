@@ -23,6 +23,11 @@ class X86(AbstractPlatform):
         self.reps = 2
 
 
+        #get cache details and store here
+        self.rd_data_bw = {}
+        self.wr_data_bw = {}
+        self.blackjack_cache_details = {}
+
         # An array of Measurement objects for each level of the memory hierarchy
         # starting with L1
         self.datalatency = []  # data caches and main memory
@@ -42,12 +47,8 @@ class X86(AbstractPlatform):
         # fill architecture details
         self.get_hardware_specs() # gathers hardware intel 
 
-        #get cache details and store here
-        self.rd_data_bw = {}
-        self.wr_data_bw = {}
-        self.fillbw()
-        print self.rd_data_bw
-        print self.wr_data_bw
+       
+        #self.fillbw()
         
         pass
 
@@ -63,10 +64,40 @@ class X86(AbstractPlatform):
         cmd = 'make -C ' + self.blackjack_caches_path  
         self._log(cmd)
         return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
+    
+        latFlag = False
+        latcounter = 0
+        temp = {}
         
+        for line in cmd_output.split(os.linesep):
+            if(len(line) > 1):
+                
+                if(line.find('==>') >= 0):
+                    #flag the start of cache size and latencies
+                    if(line.find('sizes and latencies are') >= 0):
+                        latFlag = True
+                        latcounter = 1
+                    #handling the cache line size
+                    #handling the associativity
+                        
 
+                #handling the latency/cache sizes 
+                elif(latcounter > 0):
+                    if((line.find('raw file') >= 0) && latFlag):
+                        latFlag = False
+                        latcounter = -1
+                    if(latFlag):
+                        line.split()
+                        vals = [float(line[0]), 'KiB']
+                        temp['size'] = vals
+                        vals = [float(line[1]), 'ns']
+                        temp['latency'] = vals
+                        self.blackjack_cache_details['L'+str(latcounter)] = temp 
+                        latcounter+=1        
+                
+                   
 
-        cmd = 'make -C '+self.blackjack_liverange_path
+        #cmd = 'make -C '+self.blackjack_liverange_path
         self._log(cmd)
         return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
 
@@ -154,7 +185,7 @@ class X86(AbstractPlatform):
         self.memory['total_size'] =  cmd_output
         
         #calls to other benchmarks
-        self.get_papi_avail_caller()
+        #self.get_papi_avail_caller()
         self.get_blackjack_avail_caller()
         print self.memory
         print self.data_caches
