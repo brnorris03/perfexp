@@ -72,19 +72,28 @@ class X86(AbstractPlatform):
             if(len(line) > 1):
                 
                 if(line.find('==>') >= 0):
-                    print "WOBBLE"
+                    line = line.split('==>')
+                    line = line[1]
                     #flag the start of cache size and latencies
                     if(line.find('sizes and latencies are') >= 0):
-                        print "GOBBLE"
                         latFlag = True
                         latcounter = 1
-                    #handling the cache line size
                     #handling the associativity
+                    elif(line.find('associativity') >= 0):
+                        line = line.split(':')
+                        line[0] = line[0].strip()
+                        self.blackjack_cache_details[line[0]] = int(line[1])
+                    #handling the line size
+                    elif(line.find('cache line') >= 0):
+                        temp = []
+                        line = line.split(':')
+                        line[0] = line[0].strip()
+                        temp = line[1].split()
+                        self.blackjack_cache_details[line[0]] = temp
                         
 
                 #handling the latency/cache sizes 
                 elif(latcounter > 0):
-                    print "REBLE"
                     if((line.find('raw file') >= 0) and latFlag):
                         latFlag = False
                         #last level is likely memory rather than cache
@@ -96,12 +105,10 @@ class X86(AbstractPlatform):
                     if(latFlag):
                         temp = {}
                         line = line.split()
-                        print line
                         vals = [float(line[0]), 'KiB']
                         temp['size'] = vals
                         vals = [float(line[1]), 'ns']
                         temp['latency'] = vals
-                        print temp
                         self.blackjack_cache_details['L'+str(latcounter)] = temp 
                         latcounter+=1        
                 
