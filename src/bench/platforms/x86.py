@@ -61,8 +61,8 @@ class X86(AbstractPlatform):
         '''if blackjack in on a machine, can run this method'''
         #cmd = 'cd '+self.blackjack_caches_path+' && make'
         #apparently bellow cmd doesn't work on solaris 10, AIX, or HP-UX 11.23
-        cmd = 'make -C ' + self.blackjack_caches_path  
-        self._log(cmd)
+        #cmd = 'make -C ' + self.blackjack_caches_path  
+        '''self._log(cmd)
         return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
     
         latFlag = False
@@ -113,11 +113,28 @@ class X86(AbstractPlatform):
                         latcounter+=1        
                 
                    
-        print self.blackjack_cache_details
-        #cmd = 'make -C '+self.blackjack_liverange_path
+        print self.blackjack_cache_details'''
+        cmd = 'make -C '+self.blackjack_liverange_path
         self._log(cmd)
         return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
-
+        #parse output
+        flag = False
+        for line in cmd_output.split(os.linesep):
+            if(len(line) > 1):
+                if(line.find('Running the Live Range') >= 0):
+                    flag = True
+                if(line.find('Leaving') >= 0):
+                    flag = False
+                if(flag):
+                    if(line.find('/') >= 0):
+                        #found place in code
+                        print line
+                        #storing bizarre results (unknown reason)
+                        self.blackjack_cache_details['live ranges'] = line
+                        break
+                        
+                        
+        print self.blackjack_cache_details
         return
         
 
