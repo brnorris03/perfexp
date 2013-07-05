@@ -558,6 +558,33 @@ class X86(AbstractPlatform):
         return 
 
 
+    def get_context_switches(self, **kwargs):
+        ''' Measure context switching with lat_ctx in lmbench in self.measurements. '''
+        procs = kwargs.get('procs')
+        size = kwargs.get('size')
+        reps = kwargs.get('reps')
+        contxts = kwargs.get('contexts')
+        cmd = self.lmbench_path + 'lat_ctx -P %s -N %s -s %s ' % (procs, reps, size)
+        cmd = cmd + contxts
+        self._log(cmd)
+        
+        return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+        collect_output = {}
+        for line in cmd_output.split(os.linesep)[1:]:
+            if not line: continue
+            if(line.find('ovr') >= 0):
+                line = line.split('=')
+                val = len(line)-1
+                collect_output['overhead'] = float(line[val])
+            else:
+                val1, val2 = line.split()          
+                # val1 is the context and val2 is time in nanoseconds
+                collect_output[int(val1)] = float(val2)
+
+        params = {'metric':'lat_ctx','procs':procs,'size':size, 'contexts':contxts}
+        self._recordMeasurement(params, collect_output)
+        return
+
 
     def _log(self, thestr):
         f = open(self.logfile,"a")
