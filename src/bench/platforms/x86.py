@@ -513,6 +513,52 @@ class X86(AbstractPlatform):
             self.cp_data_bw[k] = self.get_bw(memo=k+'_copy_bw', procs=1, size=(v-zone), next_size=(v+zone), gran='k',reps=self.reps, bw_type='cp')
         return
 
+    def get_process_creation(self, **kwargs):
+        ''' Measure process creation times in self.measurements. '''
+        procs = kwargs.get('procs')
+        reps = kwargs.get('reps')
+        
+        #different processes to try
+        processes = ['procedure', 'fork', 'exec']
+        stat_collector = { }
+
+        for proc in processes:
+            vals = []
+            cmd = self.lmbench_path + 'lat_proc -P %s %s' % (procs, proc)
+            self._log(cmd)
+            
+            for i in range(0,int(reps)):
+                """number of repetitions added as a parameter"""
+                return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+                if(cmd_output.find('Procedure') >= 0 or cmd_output.find('Process') >= 0):
+                    part=cmd_output.split()
+                    vals.append(float(part[2]))
+                
+            #keep statistics to pass
+            stat_collector[proc] = vals
+        
+        #do shell separately - different output
+        cmd = self.lmbench_path + 'lat_proc -P %s %s' % (procs, 'shell')
+        self._log(cmd)
+        vals = []
+        for i in range(0,int(reps)):
+            return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+            for line in cmd_output.split(os.linesep):
+                if(line.find('Process') >= 0):
+                    line = line.split()
+                    vals.append(float(line[3]))
+        stat_collector['shell']=vals
+            
+        #record answers
+        for k, v in stat_collector.iteritems():
+            #record all metrics
+            params = {'metric':'lat_proc_'+k,'procs':procs,'reps':reps}
+            self._recordMeasurement(params, Measurement(get_stats(v),units='micoseconds',params=params))
+    
+        return 
+
+
+
     def _log(self, thestr):
         f = open(self.logfile,"a")
         f.write("%s\n" % thestr)

@@ -19,8 +19,8 @@ def main():
     arch.help()
 
     # test various metrics computations
-    arch.get_hardware_specs()
-#arch.measure('get_hardware_specs')
+    #arch.get_hardware_specs()
+    arch.get_process_creation(procs='1', reps='5')
     #arch.measure('mem_write_bw', procs='1', size='256m', reps='5')
     #arch.measure('mem_read_bw', procs='1', size='256m', reps='5')
     #arch.measure('mem_read_bw', procs='2', size='256m', reps='1')
