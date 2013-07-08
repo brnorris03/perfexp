@@ -33,7 +33,7 @@ class X86(AbstractPlatform):
         # starting with L1
         self.datalatency = []  # data caches and main memory
         self.instrlatency = []  # instruction caches
-
+        self.network_latency = {} #network latencies for diff kinds of protocols
         # Log file for debugging
         self.logfile = os.path.join(os.getcwd(),'X86.log')
         
@@ -614,6 +614,48 @@ class X86(AbstractPlatform):
         self._recordMeasurement(params, self.system_ovrhds)
         return
 
+    def get_network_latency(self, **kwargs):
+        '''get network latency values '''
+        message = kwargs.get('msg_size')
+        procs = kwargs.get('procs')
+        reps = kwargs.get('reps')
+        #can be udp or tcp
+        lat_type = kwargs.get('lat_type')
+        #server and, client or shutdown
+        server = kwargs.get('server')
+        client = kwargs.get('comm')
+        
+        #create command
+        cmd_binder = cmd = self.lmbench_path + 'lat_' + lat_type + ' '
+        if message:  
+            print "OPOIPON"
+            cmd_binder += '-m %s ' % (message)
+            cmd += '-m %s ' % (message)
+        
+        print 'POIOIN'
+        #server specified
+        if not server:
+            cmd_binder += '-P %s -N %s -s' % (procs, reps)
+        else:
+            cmd_binder += '-P %s -N %s -S %s' % (procs, reps, server)
+        self._log(cmd_binder) 
+        return_code, cmd_output = system_or_die(cmd_binder, log_file=self.logfile)
+        
+        #client or shutdown specified (shutdown needs to have a minus input
+        cmd += '-P %s -N %s %s' % (procs, reps, client)
+        self._log(cmd) 
+        return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+        
+        for line in cmd_output.split(os.linesep):
+            if not line: continue
+            line = line.split(':')
+            line = line[1].split()
+            self.network_latency[lat_type] = [float(line[0]), 'microseconds'] 
+
+        print self.network_latency
+        params = {'metric':'lat_'+lat_type,'procs':procs,'reps':reps, 'msg_size':message, 'server':server, 'client':client}
+        self._recordMeasurement(params, self.network_latency)
+        return
 
     def _log(self, thestr):
         f = open(self.logfile,"a")
