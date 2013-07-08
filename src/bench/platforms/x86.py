@@ -628,11 +628,9 @@ class X86(AbstractPlatform):
         #create command
         cmd_binder = cmd = self.lmbench_path + 'lat_' + lat_type + ' '
         if message:  
-            print "OPOIPON"
             cmd_binder += '-m %s ' % (message)
             cmd += '-m %s ' % (message)
         
-        print 'POIOIN'
         #server specified
         if not server:
             cmd_binder += '-P %s -N %s -s' % (procs, reps)
@@ -655,6 +653,19 @@ class X86(AbstractPlatform):
         print self.network_latency
         params = {'metric':'lat_'+lat_type,'procs':procs,'reps':reps, 'msg_size':message, 'server':server, 'client':client}
         self._recordMeasurement(params, self.network_latency)
+        return
+
+    def get_tlb(self, **kwargs):
+        '''Gets the number of pages in the tlb '''
+        reps = kwargs.get('reps')
+        cmd = self.lmbench_path + 'tlb -N %s' % (reps)
+        self._log(cmd)
+        return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+        for line in cmd_output.split(os.linesep):
+            if not line: continue
+            line = line.split()
+            self.tlb['pages']=int(line[1])
+        print self.tlb
         return
 
     def _log(self, thestr):
