@@ -47,7 +47,9 @@ class X86(AbstractPlatform):
         self.processors = {} # e.g., {'processors': 8, 'brand' : 'Intel Xeon', 'model' : 'E5462', 'clock_speed': (2799.51,'MHz')}
         # fill architecture details
         self.get_hardware_specs() # gathers hardware intel 
-
+        
+        # fill os details
+        self.system_ovrhds = {}
         #self.fillbw()
         #print self.cp_data_bw
         pass
@@ -583,6 +585,33 @@ class X86(AbstractPlatform):
 
         params = {'metric':'lat_ctx','procs':procs,'size':size, 'contexts':contxts}
         self._recordMeasurement(params, collect_output)
+        return
+
+    def get_syscall_ovrhds(self, **kwargs):
+        '''get overheads for OS calls'''
+        fd = kwargs.get('test_open')
+        procs = kwargs.get('procs')
+        reps = kwargs.get('reps')
+        calls = ['null', 'read', 'write', 'stat', 'fstat','open']
+
+        for call in calls:
+            if(call == 'open'):
+                if(fd != ""):
+                    cmd = self.lmbench_path + 'lat_syscall -P %s -N %s open %s' % (procs, reps, fd)
+                else:
+                    print 'Error on open file test - file not specified'
+            else:
+                cmd = self.lmbench_path + 'lat_syscall -P %s -N %s %s' % (procs, reps, call)
+            self._log(cmd)
+            return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+            for line in cmd_output.split(os.linesep):
+                if not line: continue
+                line = line.split(":")
+                line = line[1].split()
+                self.system_ovrhds[call] = [float(line[0]), 'microseconds']
+                
+        params = {'metric':'lat_syscall','procs':procs,'reps':reps, 'calls':calls}
+        self._recordMeasurement(params, self.system_ovrhds)
         return
 
 

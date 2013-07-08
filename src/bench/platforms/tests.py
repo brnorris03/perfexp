@@ -22,6 +22,7 @@ def main():
     #arch.get_hardware_specs()
     #arch.get_process_creation(procs='1', reps='5')
     arch.get_context_switches(procs='1',size='100',reps='2',contexts='3 4 5 7 12')
+    arch.get_syscall_ovrhds(procs='1', reps='2', test_open='tests.py')
     #arch.measure('mem_write_bw', procs='1', size='256m', reps='5')
     #arch.measure('mem_read_bw', procs='1', size='256m', reps='5')
     #arch.measure('mem_read_bw', procs='2', size='256m', reps='1')
