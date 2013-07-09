@@ -29,6 +29,7 @@ class X86(AbstractPlatform):
         self.cp_data_bw = {}
         self.blackjack_cache_details = {}
         self.lmbench_cache_details = {}
+        self.lmbench_basic_proc_ops = {}
         self.other_lmbench = {}
 
         # An array of Measurement objects for each level of the memory hierarchy
@@ -718,6 +719,21 @@ class X86(AbstractPlatform):
             val = line[1].split()
             self.other_lmbench[line[0]]=[float(val[0]), val[1]]
      
+        return
+
+    def get_basic_proc_ops(self):
+        '''Find latency for basic ops like int XOR,ADD,SUB,MUL,DIV,MOD'''
+        cmd = self.lmbench_path + 'lat_ops'
+        self._log(cmd)
+        return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+
+        for line in cmd_output.split(os.linesep):
+            if not line: continue
+            line = line.split(':')
+            val = line[1].split()
+            self.lmbench_basic_proc_ops[line[0]]=[float(val[0]), val[1]]
+     
+        print self.lmbench_basic_proc_ops
         return
 
     def _log(self, thestr):
