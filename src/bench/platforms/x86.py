@@ -30,6 +30,7 @@ class X86(AbstractPlatform):
         self.blackjack_cache_details = {}
         self.lmbench_cache_details = {}
         self.lmbench_basic_proc_ops = {}
+        self.lmbench_create_delete = {}
         self.other_lmbench = {}
 
         # An array of Measurement objects for each level of the memory hierarchy
@@ -733,7 +734,21 @@ class X86(AbstractPlatform):
             val = line[1].split()
             self.lmbench_basic_proc_ops[line[0]]=[float(val[0]), val[1]]
      
-        print self.lmbench_basic_proc_ops
+        return
+
+    def get_create_delete_perf(self):
+        '''Find file systems create and delete performance'''
+        cmd = self.lmbench_path + 'lat_fs'
+        self._log(cmd)
+        return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+
+        for line in cmd_output.split(os.linesep):
+            if not line: continue
+            line = line.split()
+            val = {'number created':int(line[1]), \
+                       'creations/sec':int(line[2]), 'removals/sec':int(line[3])}
+            self.lmbench_create_delete[line[0]] = val
+     
         return
 
     def _log(self, thestr):
