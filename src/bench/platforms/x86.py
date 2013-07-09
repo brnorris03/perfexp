@@ -28,6 +28,7 @@ class X86(AbstractPlatform):
         self.wr_data_bw = {}
         self.cp_data_bw = {}
         self.blackjack_cache_details = {}
+        self.lmbench_cache_details = {}
 
         # An array of Measurement objects for each level of the memory hierarchy
         # starting with L1
@@ -666,6 +667,43 @@ class X86(AbstractPlatform):
             line = line.split()
             self.tlb['pages']=int(line[1])
         print self.tlb
+        return
+
+    def get_cache_lmbench(self, **kwargs):
+        '''Find the levels of cache and line sizes with lmbench cache call'''
+        cmd = self.lmbench_path + 'cache'
+        self._log(cmd)
+        return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+        for line in cmd_output.split(os.linesep):
+            if not line: continue
+            line = line.split(':')
+            vals = line[1].split()
+            if(line[0].find('Memory') < 0):
+                self.lmbench_cache_details[line[0]]= {'size':[int(vals[0]), vals[1]], \
+                                                          'latency':[float(vals[2]), vals[3]], \
+                                                          vals[5]:[int(vals[4]),'bytes'], \
+                                                          vals[7]:float(vals[6])}
+            else:
+                self.lmbench_cache_details[line[0]]={'latency':[float(vals[0]),vals[1]], \
+                                                         vals[3]:float(vals[2])}
+
+        print self.lmbench_cache_details
+        return
+
+    def get_cacheline_lmbench(self):
+        '''Find the levels of cache line sizes with lmbench line call'''
+        cmd = self.lmbench_path + 'line'
+        self._log(cmd)
+        return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+
+        size = 0
+        for line in cmd_output.split(os.linesep):
+            if not line: continue
+            size = line
+
+        for k,v in self.data_caches.iteritems():
+            v['linesize'] = [int(size), 'bytes']
+        
         return
 
     def _log(self, thestr):
