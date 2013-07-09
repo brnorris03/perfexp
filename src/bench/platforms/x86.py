@@ -29,6 +29,7 @@ class X86(AbstractPlatform):
         self.cp_data_bw = {}
         self.blackjack_cache_details = {}
         self.lmbench_cache_details = {}
+        self.other_lmbench = {}
 
         # An array of Measurement objects for each level of the memory hierarchy
         # starting with L1
@@ -651,7 +652,7 @@ class X86(AbstractPlatform):
             line = line[1].split()
             self.network_latency[lat_type] = [float(line[0]), 'microseconds'] 
 
-        print self.network_latency
+       
         params = {'metric':'lat_'+lat_type,'procs':procs,'reps':reps, 'msg_size':message, 'server':server, 'client':client}
         self._recordMeasurement(params, self.network_latency)
         return
@@ -666,7 +667,7 @@ class X86(AbstractPlatform):
             if not line: continue
             line = line.split()
             self.tlb['pages']=int(line[1])
-        print self.tlb
+        
         return
 
     def get_cache_lmbench(self, **kwargs):
@@ -687,7 +688,6 @@ class X86(AbstractPlatform):
                 self.lmbench_cache_details[line[0]]={'latency':[float(vals[0]),vals[1]], \
                                                          vals[3]:float(vals[2])}
 
-        print self.lmbench_cache_details
         return
 
     def get_cacheline_lmbench(self):
@@ -704,6 +704,20 @@ class X86(AbstractPlatform):
         for k,v in self.data_caches.iteritems():
             v['linesize'] = [int(size), 'bytes']
         
+        return
+
+    def get_pipe_latency(self):
+        '''Find the pipe latency'''
+        cmd = self.lmbench_path + 'lat_pipe'
+        self._log(cmd)
+        return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+
+        for line in cmd_output.split(os.linesep):
+            if not line: continue
+            line = line.split(':')
+            val = line[1].split()
+            self.other_lmbench[line[0]]=[float(val[0]), val[1]]
+     
         return
 
     def _log(self, thestr):

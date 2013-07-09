@@ -23,6 +23,7 @@ def main():
     #arch.get_process_creation(procs='1', reps='5')
     #arch.get_tlb(reps='3')
     arch.get_cacheline_lmbench()
+    arch.get_pipe_latency()
     #arch.get_network_latency(procs='1', reps='2', server='',comm='localhost', lat_type='tcp')
     #arch.get_context_switches(procs='2',size='100',reps='2',contexts='3 4 5 7 12')
     #arch.get_syscall_ovrhds(procs='2', reps='2', test_open='tests.py')
