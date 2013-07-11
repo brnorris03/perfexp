@@ -13,8 +13,7 @@ class X86(AbstractPlatform):
         self.lmbench_path = '/disks/soft/src/lmbench3/bin/x86_64-linux-gnu/'
         # LMBench: http://www.bitmover.com/lmbench
         self.papi_path = '/disks/soft/papi-4.4.0/bin/papi_avail'
-        self.blackjack_caches_path = '/homes/kachalas/blackjack/trunk/Cache_Discovery_Benchmakrs'
-        self.blackjack_liverange_path = '/homes/kachalas/blackjack/trunk/LiveRange'
+        self.blackjack_path = '/homes/kachalas/blackjack/trunk/'
         #others couldn't get makefile to work right  and core count fails
 
         # TODO change 4 to the actual number of memory levels (incl. caches and main memory)
@@ -31,7 +30,7 @@ class X86(AbstractPlatform):
         self.lmbench_cache_details = {}
         self.lmbench_basic_proc_ops = {}
         self.lmbench_create_delete = {}
-        self.other_lmbench = {}
+        self.lmbench_pipe = {}
 
         # An array of Measurement objects for each level of the memory hierarchy
         # starting with L1
@@ -65,9 +64,9 @@ class X86(AbstractPlatform):
 
     def get_blackjack_avail_caller(self, **kwargs):
         '''if blackjack in on a machine, can run this method'''
-        #cmd = 'cd '+self.blackjack_caches_path+' && make'
+        #cmd = 'cd '+self.blackjack_path +'Cache_Discovery_Benchmakrs && make'
         #apparently bellow cmd doesn't work on solaris 10, AIX, or HP-UX 11.23
-        cmd = 'make -C ' + self.blackjack_caches_path  
+        cmd = 'make -C ' + self.blackjack_path + 'Cache_Discovery_Benchmakrs'  
         self._log(cmd)
         return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
     
@@ -119,7 +118,7 @@ class X86(AbstractPlatform):
                         latcounter+=1        
                 
         #liveranges benchmarks called from blackjack
-        cmd = 'make -C '+self.blackjack_liverange_path
+        cmd = 'make -C '+ self.blackjack_path + 'LiveRange'
         self._log(cmd)
         return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
         #parse output
@@ -718,8 +717,23 @@ class X86(AbstractPlatform):
             if not line: continue
             line = line.split(':')
             val = line[1].split()
-            self.other_lmbench[line[0]]=[float(val[0]), val[1]]
+            self.lmbench_pipe[line[0]]=[float(val[0]), val[1]]
      
+        return
+
+
+    def get_pipe_bw(self):
+        '''Find the pipe bandwidth'''
+        cmd = self.lmbench_path + 'bw_pipe'
+        self._log(cmd)
+        return_code, cmd_output = system_or_die(cmd, log_file=self.logfile)
+
+        for line in cmd_output.split(os.linesep):
+            if not line: continue
+            line = line.split(':')
+            val = line[1].split()
+            self.lmbench_pipe[line[0]]=[float(val[0]), val[1]]
+        print self.lmbench_pipe
         return
 
     def get_basic_proc_ops(self):
