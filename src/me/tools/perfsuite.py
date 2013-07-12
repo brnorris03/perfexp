@@ -10,13 +10,19 @@ class Collector(AbstractCollector):
         f = open('events.xml', 'w')
 
         print >>f, '<?xml version="1.0" encoding="UTF-8" ?>'
-        print >>f, '<ps_hwpc_eventlist class="PAPI">'
 
-	myCounters = MEParams.meparams['counters'].split()
-        for i in range (0, len(myCounters)):
-            print >>f,  '<ps_hwpc_event type="preset" name="' + myCounters[i] + '" />'
+        myCounters = MEParams.meparams['counters'].split()
 
-        print >>f, '</ps_hwpc_eventlist>'
+        if MEParams.meparams['perfmode'] == 'count':
+            print >>f, '<ps_hwpc_eventlist class="PAPI">'
+            for i in range (0, len(myCounters)):
+                print >>f,  '<ps_hwpc_event type="preset" name="' + myCounters[i] + '" />'        
+            print >>f, '</ps_hwpc_eventlist>'
+
+        elif MEParams.meparams['perfmode'] == 'profile':
+            print >>f, '<ps_hwpc_profile class="PAPI">'
+            print >>f, '<ps_hwpc_event type="preset" name="' + myCounters[i] + '"' +' threshold="' + MEParams.meparams['samplingrate'] + '"/>'        
+            print >>f, '</ps_hwpc_profile>'
 
         movecmd = 'mv '+ os.getcwd() + '/' + 'events.xml ' + MEParams.meparams['workdir'] + '/'
         os.popen(movecmd)

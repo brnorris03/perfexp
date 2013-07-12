@@ -1,18 +1,22 @@
 #!/usr/bin/python
 
-from storage.tools.tau import PerfDMFDB 
-from me.platforms.aix import BluePrint
+from storage.tools.hpctoolkit import HPCToolkitDB 
+from me.platforms.iforge import iForge
+from me.params import MEParams
 from storage.params import DBParams as Params
   
 def main():
               
     print 'loading data\n'
 
-    myParams = Params()
-    myParams._processConfigFile		
+    meParams = MEParams()
+    meParams._processConfigFile()
 
-    mEnv = BluePrint()
-    mEnv.loadTrials(storage = PerfDMFDB())
+    dbParams = Params()
+    dbParams._processConfigFile()		
+
+    mEnv = iForge()
+    mEnv.loadTrials(storage = HPCToolkitDB())
 
     print 'finish loading data\n'
 

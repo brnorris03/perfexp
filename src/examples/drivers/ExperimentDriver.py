@@ -3,6 +3,7 @@
 from me.platforms.iforge import iForge
 from me.params import MEParams
 from storage.params import DBParams 
+from common.globals import Globals
 import os, commands
 	
 def main():
@@ -11,6 +12,10 @@ def main():
 	examplesdir = os.environ.get("PERFEXPDIR") + '/src/examples'
 
 	dirList=os.listdir(paramsdir)
+
+	globalParams = Globals()
+	globalParams._processConfigFile()
+	print globalParams.configparams['taudir']
 
 	for fname in dirList:
 		if not fname.startswith('.'):

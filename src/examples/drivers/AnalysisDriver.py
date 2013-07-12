@@ -1,11 +1,8 @@
 #!/usr/bin/python
 
 
-from analysis.tools.tau import PerfExplorer
-from analysis.tools.gups import Hpcc
+from analysis.tools.hpctoolkit import HPCToolkit
 from analysis.metrics.time import WallClock
-from analysis.metrics.memory import L2BW
-from analysis.metrics.cpu import MFLIPS
 from analysis.params import ANSParams
 from storage.params import DBParams 
 from me.params import MEParams
@@ -26,7 +23,7 @@ def main():
     except: 
         metric = WallClock(params={})
         
-    analysis = Hpcc()
+    analysis = HPCToolkit()
     analysis.runAnalysis(metric)
 
 if __name__ == "__main__":

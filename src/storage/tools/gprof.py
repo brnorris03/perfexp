@@ -7,7 +7,7 @@ from me.params import MEParams
 
 class Gprof(AbstractStorage):
 
-    def load(self, destdir, trial, process, thread):
+    def load(self, destdir, trial):
 
         convertcmd = 'gprof ' + MEParams.meparams['cmdline'] + ' ' + destdir + '/gmon.out >& ' + destdir + '/gprof.out'
         if MEParams.meparams['DEBUG'] == "1":

@@ -3,7 +3,7 @@ import os
 
 class DBParams:
 
-    dbparams = {'DEBUG':None, 'datadir':None, 'appname':None, 'expname':None, 'trialname':None, 'cqosloaderdir':None, 'cqosloader':None, 'dbconfig':None}	
+    dbparams = {'DEBUG':None, 'appname':None, 'expname':None, 'trialname':None, 'cqosloaderdir':None, 'cqosloader':None, 'dbconfig':None}	
 
     def _processConfigFile(self):
         
@@ -17,12 +17,6 @@ class DBParams:
         
         except:
             raise Exception('Error: could not find DEBUG in configuration file %s' % self.config_file)
-
-        try:
-            self.dbparams['datadir'] = self.config.get(mysection, 'datadir')
-        
-        except:
-            raise Exception('Error: could not find datadir in configuration file %s' % self.config_file)
 
         try:
             self.dbparams['appname'] = self.config.get(mysection, 'appname')

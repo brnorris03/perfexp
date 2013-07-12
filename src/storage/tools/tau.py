@@ -7,7 +7,7 @@ from storage.params import DBParams
 
 class PerfDMFDB(AbstractStorage):
 
-    def load(self, destdir, trial, process, thread):
+    def load(self, destdir, trial):
 
         DataCollector = TAUCollector()
         self.dataFormat = DataCollector.getDataFormat()

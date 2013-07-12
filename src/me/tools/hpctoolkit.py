@@ -9,15 +9,19 @@ class Collector(AbstractCollector):
         self.options = ''
 
     def setCounters(self):
-        self.options = ' -e ' + ' -e '.join(MEParams.meparams['counters'].split())
 
+        counters = MEParams.meparams['counters'].split()
+
+        for i in range(0,len(counters)):
+            self.options += ' -e ' + counters[i] + '@' + MEParams.meparams['samplingrate'] + ' '    
+        return self.options    
 
     def getCommand(self):
 
         if MEParams.meparams['instrumentation'] == "runtime":
-            if MEParams.meparams['pmodel'] in ["mpi","mpi:omp"]:
-                cmd = MEParams.meparams['mpicmd'] + ' hpcrun '
-            else:
+            if MEParams.meparams['perfmode'] == "tracing":
+                cmd = 'hpcrun -t'
+            elif MEParams.meparams['perfmode'] == "profiling":
                 cmd = 'hpcrun '
         else:
             cmd  = ' '

@@ -3,7 +3,7 @@ import os
 
 class MEParams:
 
-    meparams = {'DEBUG':None, 'workdir':None, 'mpidir':None, 'mpicmd':None, 'cmdline':None, 'threads':None, 'processes':None, 'nodes':None, 'tasks_per_node':None, 'pmodel':None, 'instrumentation':None, 'exemode':None, 'batchcmd':None, 'jobname':None, 'walltime':None, 'maxprocessor':None, 'accountname':None, 'buffersize':None, 'msgsize':None, 'stacksize':None, 'counters':None, 'commode':None}
+    meparams = {'DEBUG':None, 'workdir':None, 'mpidir':None, 'mpicmd':None, 'threads':None, 'processes':None, 'nodes':None, 'tasks_per_node':None, 'pmodel':None, 'instrumentation':None, 'exemode':None, 'batchcmd':None, 'jobname':None, 'walltime':None, 'maxprocessor':None, 'accountname':None, 'buffersize':None, 'msgsize':None, 'stacksize':None, 'counters':None, 'commode':None, 'memorysize':None, 'queue':None, 'input':None, 'inputdir':None, 'inputfiles':None, 'execdir':None, 'exec':None, 'samplingrate':None, 'perfmode':None, 'run':None, 'srcdir':None }
 	
     def _processConfigFile(self):
  
@@ -25,18 +25,13 @@ class MEParams:
         try:
             self.meparams['mpidir'] = self.config.get(mysection, 'mpidir')
         except:
-            raise Exception('Error: could not find mpidir in configuration file %s' % self.config_file)
+            raise Exception('Error: could not find mpidir in configuration file %s' %
+ self.config_file)
 
         try:
             self.meparams['mpicmd'] = self.config.get(mysection, 'mpicmd')
         except:
             raise Exception('Error: could not find mpicmd (e.g., mpicmd = mpiexec -np 4) in configuration file %s' % self.config_file)
-
-        try:
-            self.meparams['cmdline'] = self.config.get(mysection, 'cmdline')
-        
-        except:
-            raise Exception('Error: could not find cmdline in configuration file %s' % self.config_file)
 
         try:
             self.meparams['threads'] = self.config.get(mysection, 'threads')
@@ -175,6 +170,43 @@ class MEParams:
         except:
             raise Exception('Error: could not find inputfiles in configuration file %s' % self.config_file)
 
+        try:
+            self.meparams['execdir'] = self.config.get(mysection, 'execdir')
+
+        except:
+            raise Exception('Error: could not find execdir in configuration file %s' % self.config_file)
+
+
+        try:
+            self.meparams['exec'] = self.config.get(mysection, 'exec')
+
+        except:
+            raise Exception('Error: could not find exec in configuration file %s' % self.config_file)
+
+        try:
+            self.meparams['samplingrate'] = self.config.get(mysection, 'samplingrate')
+
+        except:
+            raise Exception('Error: could not find samplingrate in configuration file %s' % self.config_file)
+
+        try:
+            self.meparams['perfmode'] = self.config.get(mysection, 'perfmode')
+
+        except:
+            raise Exception('Error: could not find perfmode in configuration file %s' % self.config_file)
+
+
+        try:
+            self.meparams['run'] = self.config.get(mysection, 'run')
+
+        except:
+            raise Exception('Error: could not find run in configuration file %s' % self.config_file)
+
+        try:
+            self.meparams['srcdir'] = self.config.get(mysection, 'srcdir')
+
+        except:
+            raise Exception('Error: could not find srcdir in configuration file %s' % self.config_file)
 
 
 

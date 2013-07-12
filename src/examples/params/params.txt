@@ -4,37 +4,42 @@ DEBUG = 1
 
 [ExperimentDriver]
 
-workdir = /ui/ac/vtbui/projects/kernels/matmul/mpi/exp
-mpidir = /usr/local/mpi/mvapich2/mvapich2-1.7rc1-intel-12.0.4/bin/mpirun_rsh
-inputdir = 
+workdir = /projects/rrt/vtbui/exp/test
+mpidir = /ui/ncsa/vtbui/software/mvapich2-1.9a2/bin
+inputdir = /projects/rrt/vtbui/exp/precise/data/BR700-hires/calc
 inputfiles = 
-cmdline = /ui/ac/vtbui/projects/kernels/matmul/mpi/./matmul 
+execdir = /ui/ncsa/vtbui/projects/kernels/matmul/mpi
+exec = matmul
+srcdir = /ui/ncsa/vtbui/projects/kernels/matmul/mpi
+mpicmd = mpirun_rsh
 input = -1
 threads = 1  
 processes = 1  
 nodes = 1
-tasks_per_node = 2 4 
+tasks_per_node = 16 
 pmodel = mpi
 instrumentation = runtime
+samplingrate = 5000
+perfmode = tracing
 exemode = batch
 batchcmd = qsub
 jobname = matmul
 walltime = 0:05:00
 maxprocessor = 1
-accountname = 
+accountname = bc0
 buffersize = 
 msgsize = 64000
 stacksize = 10000000
-counters = PAPI_TOT_CYC PAPI_FP_OPS PAPI_TOT_INS
+counters = PAPI_TOT_CYC
 commode = US
 smt = yes
 memorysize = 
 queue = normal
+run = yes
 
 [DataManager]
 
-datadir = /ui/ac/vtbui/projects/kernels/matmul/mpi/exp
-appname =  matmul
+appname =  precise
 expname = iforge
 trialname = mpi
 cqosloaderdir = /homes/vbui/projects/experiments/fun3d

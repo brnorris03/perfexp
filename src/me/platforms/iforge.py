@@ -1,18 +1,21 @@
 #!/usr/bin/python
 
 import os, commands
-from me.tools.perfsuite import Collector 
-from storage.tools.gprof import Gprof 
+from me.tools.hpctoolkit import Collector 
+from storage.tools.hpctoolkit import HPCToolkitDB 
 from me.params import MEParams
 from storage.params import DBParams
 
 class iForge:
+	def __init__(self):
+		self.env = ''
 
 	def genBatchScript(self, node, tasks_per_node, threads, i,filename, execmd, destdir):
 
 		DataCollector = Collector()
                 dataFormat = DataCollector.getDataFormat()
 		ccmd = DataCollector.getCommand()
+		options = DataCollector.setCounters()
 
 		f = open(filename, 'w')
 
@@ -27,22 +30,35 @@ class iForge:
 		print >>f, 'cd ' + destdir
 		print >>f, 'setenv NP `wc -l ${PBS_NODEFILE} | cut -d\'/\' -f1`'
 
-
-		dest = DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + node + 't' + tasks_per_node + 't2' + threads + 'i'+i
+		dest = MEParams.meparams['workdir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + node + 't' + tasks_per_node + 't2' + threads + 'i'+i
 
 		if dataFormat == 'psrun':
 			execmd = ccmd  + ' ' + execmd
 			if MEParams.meparams['counters']:
 				DataCollector.setCounters()
 				print >>f, 'setenv PS_HWPC_CONFIG ' + dest + '/events.xml'
+				self.env += 'PS_HWPC_CONFIG=' + dest + '/events.xml '
+		elif dataFormat == 'hpcstruct':
+			execmd = ccmd + ' ' + options + ' ' + execmd 
 
+                print >>f, 'cd ' +  dest
 
-		if MEParams.meparams['inputfiles']:
-			for i in MEParams.meparams['inputfiles'].split():
-				print >>f, 'ln -s ' + MEParams.meparams['inputdir'] + '/' + i + ' ' + dest + '/./' + i
+                if MEParams.meparams['inputfiles']:
+                        for i in MEParams.meparams['inputfiles'].split():
+                                print >>f, 'cp ' + MEParams.meparams['inputdir'] + '/' + i + ' ' + dest
+
+                print >>f, 'cp ' + MEParams.meparams['execdir'] + '/' + MEParams.meparams['exec'] + ' ' + dest
+
+                print >>f, 'wait'
+
+		if dataFormat == 'hpcstruct':
+			print >>f, dataFormat + ' ./' + MEParams.meparams['exec']
 
 		if MEParams.meparams['pmodel'] == 'mpi':
-			print >>f,  MEParams.meparams['mpidir'] + ' -ssh  -np ${NP} -hostfile ${PBS_NODEFILE}' + ' ' + execmd
+			if MEParams.meparams['mpicmd'] == 'mpirun_rsh':
+				print >>f,  MEParams.meparams['mpidir'] + '/' + MEParams.meparams['mpicmd'] + ' -ssh  -np ${NP} -hostfile ${PBS_NODEFILE}' + ' ' + self.env + execmd
+			elif MEParams.meparams['mpicmd'] == 'mpiexec':
+				print >>f, MEParams.meparams['mpidir'] + ' -n ${NP} -f ${PBS_NODEFILE}' + ' ' +  execmd        
 		else:	
 			print >>f, execmd
 
@@ -51,28 +67,6 @@ class iForge:
 
 		f.close()
 	
-	def moveData(self, src, dest):
-	
-        	DataCollector = Collector()
-        	dataFormat = DataCollector.getDataFormat()
-
-        	if not os.path.exists(dest):
-            		os.makedirs(dest)
-
-        	if dataFormat == 'profiles':
-            		moveCommand = 'mv ' + src + '/MULTI__P* ' + src + '/profile* ' + dest + '/'
-        	elif dataFormat == 'psrun':	
-           		moveCommand = 'mv ' + src + '/*.xml ' + dest + '/'
-        	elif dataFormat == 'gprof':	
-           		moveCommand = 'mv ' + src + '/gmon* ' + dest + '/'
-		elif dataFormat == 'notimer':
-		        moveCommand = ''
-			
-		if MEParams.meparams['DEBUG']=="1": 
-        		print 'DEBUG:move performance data command: ', moveCommand
-#       		commands.getstatusoutput(moveCommand)
-                        os.popen(moveCommand)
-
 	def runApp(self):
 		
 		for p in MEParams.meparams['nodes'].split():
@@ -83,7 +77,7 @@ class iForge:
 
 	def runit(self,p,t,t2,i):
 
-                cmd = MEParams.meparams['cmdline']
+                cmd = MEParams.meparams['exec']
 
                 if MEParams.meparams['DEBUG'] == "1":
                         print 'DEBUG: executing: ', cmd
@@ -94,7 +88,7 @@ class iForge:
                 try: os.chdir(MEParams.meparams['workdir'])
                 except Exception,e:
                         print >> sys.stderr, 'Exception in ExperimentDriver:  '+str(e)
-                dest = DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + p + 't' + t + 't2' + t2 + 'i'+i
+                dest = MEParams.meparams['workdir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + p + 't' + t + 't2' + t2 + 'i'+i
                 if not os.path.exists(dest): os.makedirs(dest)
                 try: os.chdir(dest)
                 except Exception,e:
@@ -121,12 +115,12 @@ class iForge:
                         cmd = MEParams.meparams['batchcmd'] + ' ' + dest + '/' + 'p'+ p + '-t' + t + 't2' + t2 + '.iforge '
                         if MEParams.meparams['DEBUG'] == "1":
                                 print 'DEBUG: batch submit command: ', cmd
-                        app_output = os.popen(cmd)
-                        fp = open("expout", "w")
-                        print >>fp,  app_output.read()
-                        fp.close()
 
-                self.moveData(MEParams.meparams['workdir'], dest)
+			if MEParams.meparams['run'] == "yes":	
+				app_output = os.popen(cmd)
+				fp = open("expout", "w")
+				print >>fp,  app_output.read()
+				fp.close()
 
         
 	def loadTrials(self, storage):
@@ -138,31 +132,20 @@ class iForge:
 			for p in MEParams.meparams['processes'].split():
 				for t in MEParams.meparams['threads'].split():
 
-					destdir = DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + p + 't' + t
+					destdir = MEParams.dbparams['workdir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + p + 't' + t
 					tn = DBParams.dbparams['trialname'] + '-p' + p + 't' + t
-		                        #temporary fix
+					DB.load(destdir, tn)
 
-					# cpcmd = 'mv -f ' + datadir + '/' + appname + '-' + expname +'-' + tn + '/profile* ' + datadir + '/' + appname + '-' + expname + '-' + tn + '/MULTI*'
-					# if DEBUG == 1:
-					#	print 'copy profiles: ', cpcmd
-					# commands.getstatusoutput(cpcmd)
-					
-
-					DB.load(destdir, tn,p,t)
 		elif MEParams.meparams['pmodel'] == "mpi":	
-			for n in MEParams.meparams['processes'].split():
-				for t in MEParams.meparams['threads'].split():
-					destdir = DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + n + 't' + t
-					tn = DBParams.dbparams['trialname'] + '-p' + n + 't' + t
-		                        #temporary fix
-					cpcmd = 'cp ' + DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + tn + '/profile* ' + DBParams.dbparams['datadir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + tn + '/MULTI*'
-					# if DEBUG == 1:
-					#	print 'copy profiles: ', cpcmd
+			for p in MEParams.meparams['nodes'].split():
+				for t in MEParams.meparams['tasks_per_node'].split():
+					for t2 in MEParams.meparams['threads'].split():
+						for i in MEParams.meparams['input'].split():
+							destdir = MEParams.meparams['workdir'] + '/' + DBParams.dbparams['appname'] + '-' + DBParams.dbparams['expname'] + '-' + DBParams.dbparams['trialname'] + '-p' + p + 't' + t + 't2' + t2 + 'i'+i
+					
+							tn = DBParams.dbparams['trialname'] + '-p' + p + 't' + t + 't2'+ t2 + 'i'+i
 
-					commands.getstatusoutput(cpcmd)
-					tn = DBParams.dbparams['trialname'] + '-p' + n + '-t' + t
-
-					DB.load(destdir, tn, n,t)
+							DB.load(destdir, tn)
 					
 	def validateModel(self, model):				
 		
