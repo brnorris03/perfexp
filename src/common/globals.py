@@ -71,6 +71,7 @@ class Globals_Singleton:
 
 
         # initialize configuration file parameters
+
         self.configparams = {'lmbenchdir':None, 'blackjackdir':None, 'skampidir':None, 'papidir':None,'taudir':None,'hpctoolkitdir':None,'perfsuitedir':None}
         self.config = ConfigParser.ConfigParser()
         self.config_file = os.path.join(self.mydir,'config','config.txt')
