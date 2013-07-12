@@ -65,7 +65,10 @@ class Globals_Singleton:
             self.mydir = dirs[1]
         else:
             # source tree (development) location
-            dirs = [os.path.join(cur_dir,'src')]
+            if os.path.basename(cur_dir) == 'scripts':
+                dirs = [os.path.join(os.environ.get("PERFEXPDIR"),'src')]
+            else:
+                dirs = [os.path.join(cur_dir,'src')]    
             self.mydir = dirs[0]
             sys.path.extend(dirs)
 
@@ -74,6 +77,7 @@ class Globals_Singleton:
 
         self.configparams = {'lmbenchdir':None, 'blackjackdir':None, 'skampidir':None, 'papidir':None,'taudir':None,'hpctoolkitdir':None,'perfsuitedir':None}
         self.config = ConfigParser.ConfigParser()
+
         self.config_file = os.path.join(self.mydir,'config','config.txt')
         
     def _processConfigFile(self):
