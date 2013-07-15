@@ -13,6 +13,7 @@ class X86(AbstractPlatform):
         self.lmbench_path = '/disks/soft/src/lmbench3/bin/x86_64-linux-gnu/'
         # LMBench: http://www.bitmover.com/lmbench
         self.papi_path = '/disks/soft/papi-4.4.0/bin/papi_avail'
+        self.perfsuite_path = '/disks/large/soft/perfsuite-1.1.0/bin/'
         self.blackjack_path = '/homes/kachalas/blackjack/trunk/'
         #others couldn't get makefile to work right  and core count fails
 
@@ -26,11 +27,22 @@ class X86(AbstractPlatform):
         self.rd_data_bw = {}
         self.wr_data_bw = {}
         self.cp_data_bw = {}
+
+        # BENCHMARK-GATHERED DETAILS
+        # BLACKJACK
         self.blackjack_cache_details = {}
+        # LMBENCH
         self.lmbench_cache_details = {}
         self.lmbench_basic_proc_ops = {}
         self.lmbench_create_delete = {}
         self.lmbench_pipe = {}
+        #PERFSUITE
+        self.perfsuite_dcache = {}
+        self.perfsuite_icache = {}
+        self.perfsuite_tlb = {}
+        self.perfsuite_system = {}
+        self.perfsuite_processor = {}
+
 
         # An array of Measurement objects for each level of the memory hierarchy
         # starting with L1
@@ -139,6 +151,78 @@ class X86(AbstractPlatform):
                         
         return
         
+    def get_perfsuite_avail_caller(self, **kwargs ):
+        '''if perfsuite is on a machine, then it will help gather the data'''
+        cmd = self.perfsuite_path + 'psinv'
+        self._log(cmd)
+        return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
+
+        initial_H = False
+        overall_head = ''
+        tracking = {}
+        counter = 0
+        accessory = 0
+        full_list = []
+        heading = ''
+        level_dic = {}
+        using_lvls = False
+        activate_count = False
+        lvl_track = {}
+
+        for line in cmd_output.split(os.linesep):
+            if not line: continue
+            if((line.find('Information -') > -1) or (line.find('Details -') > -1)):
+                #store info of a full list
+                if(initial_H):
+                    kind = overall_head
+                    tracking['kind'] = kind
+                    life_within = tracking
+                    print life_within
+                    full_list.append(life_within)
+                    tracking = {}    
+
+           
+                line = line.split('-')
+                overall_head = line[0].strip()
+                initial_H = True
+
+            elif(line.find(':') >= 0):
+                #info to store
+                line = line.split(':')
+                line[1] = line[1].strip()
+                line[0] = line[0].strip('\t\n\r')
+                
+                if not line[1]:
+                    #store and clear lvl list
+                    if(activate_count):
+                        val = heading
+                        vals = level_dic
+                        tracking[val] = vals
+                        level_dic = {}
+
+                    counter = 0
+                    accessory = 0
+                    activate_count = True
+                    heading = line[0]
+                   
+                else:
+                    if(activate_count):
+                        counter += 1
+                        val = line[0]+str(accessory)
+                        level_dic[val] = [line[1]]
+                        if(counter == 4):
+                            accessory += 1
+                            counter = 0
+                    else:
+                        tracking[line[0]] = [line[1]]
+        
+        #the last list should be the one left over after loop
+        tracking['kind'] = overall_head
+        full_list.append(tracking)
+        tracking[heading] = level_dic
+        print tracking
+        #print full_list
+        return
 
     def get_papi_avail_caller(self, **kwargs):
         '''if papi is on a machine, then it will help gather the data'''
