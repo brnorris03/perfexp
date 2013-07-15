@@ -220,8 +220,8 @@ class X86(AbstractPlatform):
         tracking['kind'] = overall_head
         full_list.append(tracking)
         tracking[heading] = level_dic
-        print tracking
-        #print full_list
+        
+        print full_list
         return
 
     def get_papi_avail_caller(self, **kwargs):
