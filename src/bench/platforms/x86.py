@@ -37,11 +37,11 @@ class X86(AbstractPlatform):
         self.lmbench_create_delete = {}
         self.lmbench_pipe = {}
         #PERFSUITE
-        self.perfsuite_dcache = {}
-        self.perfsuite_icache = {}
-        self.perfsuite_tlb = {}
-        self.perfsuite_system = {}
-        self.perfsuite_processor = {}
+        self.perfsuite_dcache = []
+        self.perfsuite_icache = []
+        self.perfsuite_tlb = []
+        self.perfsuite_system = []
+        self.perfsuite_processor = []
 
 
         # An array of Measurement objects for each level of the memory hierarchy
@@ -157,6 +157,7 @@ class X86(AbstractPlatform):
         self._log(cmd)
         return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
 
+        #PARSING
         initial_H = False
         overall_head = ''
         tracking = {}
@@ -165,9 +166,7 @@ class X86(AbstractPlatform):
         full_list = []
         heading = ''
         level_dic = {}
-        using_lvls = False
         activate_count = False
-        lvl_track = {}
 
         for line in cmd_output.split(os.linesep):
             if not line: continue
@@ -177,13 +176,23 @@ class X86(AbstractPlatform):
                     kind = overall_head
                     tracking['kind'] = kind
                     life_within = tracking
-                    print life_within
+                    #alias lists
+                    if(kind.find('System Information') >= 0 or kind.find('TLB Information') >= 0):
+                        full_list = self.perfsuite_system
+                    elif(kind.find('Processor Information') >= 0):
+                        full_list = self.perfsuite_processor
+                    else:
+                        print 'YORUBAN'
+                        full_list = self.perfsuite_dcache
+                    
                     full_list.append(life_within)
-                    tracking = {}    
 
+                    #restart list
+                    tracking = {}    
            
                 line = line.split('-')
                 overall_head = line[0].strip()
+                #prevents storing empty list and mismatches
                 initial_H = True
 
             elif(line.find(':') >= 0):
@@ -192,6 +201,7 @@ class X86(AbstractPlatform):
                 line[1] = line[1].strip()
                 line[0] = line[0].strip('\t\n\r')
                 
+                #formatted like a level
                 if not line[1]:
                     #store and clear lvl list
                     if(activate_count):
@@ -208,20 +218,23 @@ class X86(AbstractPlatform):
                 else:
                     if(activate_count):
                         counter += 1
-                        val = line[0]+str(accessory)
+                        val = line[0]+'_'+str(accessory)
                         level_dic[val] = [line[1]]
+                        #every four is a different set
                         if(counter == 4):
                             accessory += 1
                             counter = 0
                     else:
+                        #no separate levels
                         tracking[line[0]] = [line[1]]
         
         #the last list should be the one left over after loop
         tracking['kind'] = overall_head
-        full_list.append(tracking)
         tracking[heading] = level_dic
-        
-        print full_list
+        full_list = self.perfsuite_tlb
+        full_list.append(tracking)
+
+
         return
 
     def get_papi_avail_caller(self, **kwargs):
