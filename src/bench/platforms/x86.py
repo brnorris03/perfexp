@@ -37,12 +37,12 @@ class X86(AbstractPlatform):
         self.lmbench_create_delete = {}
         self.lmbench_pipe = {}
         #PERFSUITE
-        self.perfsuite_dcache = []
-        self.perfsuite_icache = []
+        self.perfsuite_cache = []
         self.perfsuite_tlb = []
         self.perfsuite_system = []
         self.perfsuite_processor = []
-
+        #PAPI
+        self.papi_hdw_info = {}
 
         # An array of Measurement objects for each level of the memory hierarchy
         # starting with L1
@@ -182,8 +182,7 @@ class X86(AbstractPlatform):
                     elif(kind.find('Processor Information') >= 0):
                         full_list = self.perfsuite_processor
                     else:
-                        print 'YORUBAN'
-                        full_list = self.perfsuite_dcache
+                        full_list = self.perfsuite_cache
                     
                     full_list.append(life_within)
 
@@ -243,26 +242,33 @@ class X86(AbstractPlatform):
         self._log(cmd)
         return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
         
+        counter = 0
         # parsed output for model and brand
         for line in cmd_output.split(os.linesep):
-            line = line.split(':')
-           
-            if(len(line) > 1):
-                #get model information and self store
-                if(line[0].find('Model') >= 0):
-                    line = line[1].split('CPU')
-                    line[0] = line[0].lstrip()
-                    line[0] = line[0].rstrip()
-                    self.processors['brand'] = line[0]
-                    line = line[1].split('@')
-                    line = line[0].strip()
-                    self.processors['model'] = line
-                if(line[0].find('Hdw Threads') >= 0):
-                    self.processors['hdw_threads_per_core']= int(line[1])
-                if(line[0].find('CPUs per Node') >= 0):
-                    self.processors['CPUs_per_node'] = line[1]
-                
-        print self.processors
+            if not line: continue
+            
+            #get model information and self store
+            if(line.find('--------') >= 0):
+                counter+=1
+
+            if(counter == 2):
+                break
+            else:
+                line = line.split(':')
+                line[0]=line[0].strip()
+                if(len(line) > 2):
+                    format_1 = line[2].split()
+                    format_2 = line[3].split()
+                    val = {}
+                    print line
+                    val[line[1]]=format_1[0].strip()
+                    val[format_1[1]]=format_2[0].strip()
+                    val[format_2[1]]=line[4].strip()
+                    self.papi_hdw_info[line[0]]=val
+                else:
+                    if(len(line) >= 2):
+                        print line
+                        self.papi_hdw_info[line[0]]=line[1].strip()
         return
 
     def get_hardware_specs(self, **kwargs):

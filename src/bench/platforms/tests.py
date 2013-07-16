@@ -26,6 +26,7 @@ def main():
     #arch.get_cacheline_lmbench()
     #arch.get_pipe_latency()
     #arch.get_pipe_bw()
+    arch.get_papi_avail_caller()
     arch.get_perfsuite_avail_caller()
     #arch.get_blackjack_avail_caller()
     #arch.get_basic_proc_ops()
