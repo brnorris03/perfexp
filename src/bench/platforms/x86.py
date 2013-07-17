@@ -12,7 +12,7 @@ class X86(AbstractPlatform):
         # temporarily hard-coded location of lmbench (on cookie):
         self.lmbench_path = '/disks/soft/src/lmbench3/bin/x86_64-linux-gnu/'
         # LMBench: http://www.bitmover.com/lmbench
-        self.papi_path = '/disks/soft/papi-4.4.0/bin/papi_avail'
+        self.papi_path = '/disks/soft/papi-4.4.0/bin/'
         self.perfsuite_path = '/disks/large/soft/perfsuite-1.1.0/bin/'
         self.blackjack_path = '/homes/kachalas/blackjack/trunk/'
         #others couldn't get makefile to work right  and core count fails
@@ -43,7 +43,8 @@ class X86(AbstractPlatform):
         self.perfsuite_processor = []
         #PAPI
         self.papi_hdw_info = {}
-
+        self.papi_hdw_counters = {}
+        
         # An array of Measurement objects for each level of the memory hierarchy
         # starting with L1
         self.datalatency = []  # data caches and main memory
@@ -238,7 +239,7 @@ class X86(AbstractPlatform):
 
     def get_papi_avail_caller(self, **kwargs):
         '''if papi is on a machine, then it will help gather the data'''
-        cmd = self.papi_path
+        cmd = self.papi_path + 'papi_avail -a'
         self._log(cmd)
         return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
         
@@ -252,7 +253,10 @@ class X86(AbstractPlatform):
                 counter+=1
 
             if(counter == 2):
-                break
+                line = line.split()
+                if(line[0].find('PAPI') >= 0):
+                    self.papi_hdw_counters[line[0]] = ' '.join(line[3:])
+    
             else:
                 line = line.split(':')
                 line[0]=line[0].strip()
@@ -267,8 +271,12 @@ class X86(AbstractPlatform):
                     self.papi_hdw_info[line[0]]=val
                 else:
                     if(len(line) >= 2):
-                        print line
                         self.papi_hdw_info[line[0]]=line[1].strip()
+
+
+        print self.papi_hdw_info
+        print "WOOW"
+        print self.papi_hdw_counters
         return
 
     def get_hardware_specs(self, **kwargs):
