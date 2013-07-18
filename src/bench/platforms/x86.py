@@ -14,6 +14,7 @@ class X86(AbstractPlatform):
         # LMBench: http://www.bitmover.com/lmbench
         self.papi_path = '/disks/soft/papi-4.4.0/bin/'
         self.perfsuite_path = '/disks/large/soft/perfsuite-1.1.0/bin/'
+        self.ior_path = '/homes/kachalas/ior/src'
         self.blackjack_path = '/homes/kachalas/blackjack/trunk/'
         #others couldn't get makefile to work right  and core count fails
 
@@ -44,7 +45,9 @@ class X86(AbstractPlatform):
         #PAPI
         self.papi_hdw_info = {}
         self.papi_hdw_counters = {}
-        
+        self.papi_native = []
+        self.papi_total_events = ''
+
         # An array of Measurement objects for each level of the memory hierarchy
         # starting with L1
         self.datalatency = []  # data caches and main memory
@@ -74,6 +77,12 @@ class X86(AbstractPlatform):
     def runBenchmark(self, cmd):
         # TODO: run entire benchmark 
         return
+
+    def get_ior_avail_caller(self, **kwargs):
+        cmd = self.ior_path + 'ior'
+
+        return
+
 
     def get_blackjack_avail_caller(self, **kwargs):
         '''if blackjack in on a machine, can run this method'''
@@ -273,10 +282,30 @@ class X86(AbstractPlatform):
                     if(len(line) >= 2):
                         self.papi_hdw_info[line[0]]=line[1].strip()
 
+        cmd = self.papi_path + 'papi_native_avail'
+        self._log(cmd)
+        return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
 
-        print self.papi_hdw_info
-        print "WOOW"
-        print self.papi_hdw_counters
+        check_next = False
+        for line in cmd_output.split(os.linesep)[20:]:
+            if not line: continue
+            if(line.find('----------------') >= 0):
+                check_next = True
+            else:
+                if(check_next == True):
+                    line = line.split('|')
+                    if(len(line) >= 2):
+                        if(line[1].find('Total events') >= 0):
+                            line = line.split(':')
+                            self.papi_total_events = line[1]
+                        else:
+                            self.papi_native.append(line[1].strip())
+                        check_next = False
+                else:
+                    continue
+
+        print self.papi_native
+        print self.papi_total_events + "   DSDSDSDSDSD"
         return
 
     def get_hardware_specs(self, **kwargs):
