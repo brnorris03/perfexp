@@ -14,7 +14,7 @@ class X86(AbstractPlatform):
         # LMBench: http://www.bitmover.com/lmbench
         self.papi_path = '/disks/soft/papi-4.4.0/bin/'
         self.perfsuite_path = '/disks/large/soft/perfsuite-1.1.0/bin/'
-        self.ior_path = '/homes/kachalas/ior/src'
+        self.ior_path = '/homes/kachalas/ior/src/'
         self.blackjack_path = '/homes/kachalas/blackjack/trunk/'
         #others couldn't get makefile to work right  and core count fails
 
@@ -47,6 +47,9 @@ class X86(AbstractPlatform):
         self.papi_hdw_counters = {}
         self.papi_native = []
         self.papi_total_events = ''
+        #IOR
+        self.ior_runtimes = {}
+
 
         # An array of Measurement objects for each level of the memory hierarchy
         # starting with L1
@@ -79,8 +82,56 @@ class X86(AbstractPlatform):
         return
 
     def get_ior_avail_caller(self, **kwargs):
-        cmd = self.ior_path + 'ior'
+        reps = int(kwargs.get('reps'))
+        ops = kwargs.get('options')
+        cmd = self.ior_path + 'ior ' + ops
+       
+        for i in range(0, reps):
+            self._log(cmd)
+            return_code, cmd_output = system_or_die(cmd, log_file = self.logfile)
+            seen_summary = False
+            skip_line = False
+            get_settings = False
+            settings = {}
+            hold = []
+            rep_vals = {}
+            for line in cmd_output.split(os.linesep):
+                if(line.find('Summary of all') >= 0):
+                    #place to get values
+                    seen_summary = True
+                    skip_line = True
+                elif(line.find('Summary') >= 0):
+                    #record settings for run's results
+                    get_settings = True
+                elif(get_settings):
+                    if not line: 
+                        get_settings = False
+                    else:
+                        line = line.split('=')
+                        line[0] = line[0].strip()
+                        settings[line[0]] = line[1].strip()
+                elif(skip_line):
+                    #this should be metrics
+                    skip_line = False
+                    line = line.split()
+                    hold = line
+                elif(seen_summary and line.find('Finished') < 0):
+                    #store details of read and write
+                    line = line.split()
+                    for j in range(0,len(line)):
+                        #should match up
+                        rep_vals[hold[j]] = line[j]
+                    temp = rep_vals
+                    self.ior_runtimes['rep_' + str(i)+ '_'+ temp['Operation']] = temp 
+                elif(line.find('Finished') >= 0):
+                    self.ior_runtimes['rep_' + str(i)+'_end'] = line
+                    temp = settings
+                    self.ior_runtimes['rep_' + str(i)+'_settings'] = temp
+                elif(line.find('started') >= 0):
+                    self.ior_runtimes['rep_' + str(i)+'_start'] = line
 
+
+        print self.ior_runtimes
         return
 
 
@@ -300,9 +351,7 @@ class X86(AbstractPlatform):
                     if(len(line) >= 2):
                         self.papi_native.append(line[1].strip())
                         check_next = False
-          
-        print self.papi_native
-        print self.papi_total_events
+
         return
 
     def get_hardware_specs(self, **kwargs):
