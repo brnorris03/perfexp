@@ -289,23 +289,20 @@ class X86(AbstractPlatform):
         check_next = False
         for line in cmd_output.split(os.linesep)[20:]:
             if not line: continue
-            if(line.find('----------------') >= 0):
+            if(line.find('Total events') >= 0):
+                line = line.split(':')
+                self.papi_total_events = line[1]
+            elif(line.find('----------------') >= 0):
                 check_next = True
             else:
                 if(check_next == True):
                     line = line.split('|')
                     if(len(line) >= 2):
-                        if(line[1].find('Total events') >= 0):
-                            line = line.split(':')
-                            self.papi_total_events = line[1]
-                        else:
-                            self.papi_native.append(line[1].strip())
+                        self.papi_native.append(line[1].strip())
                         check_next = False
-                else:
-                    continue
-
+          
         print self.papi_native
-        print self.papi_total_events + "   DSDSDSDSDSD"
+        print self.papi_total_events
         return
 
     def get_hardware_specs(self, **kwargs):
