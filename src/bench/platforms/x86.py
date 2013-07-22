@@ -130,6 +130,8 @@ class X86(AbstractPlatform):
                 elif(line.find('started') >= 0):
                     self.ior_runtimes['rep_' + str(i)+'_start'] = line
 
+        params = {'metric':cmd,'reps':reps}
+        self._recordMeasurement(params, self.ior_runtimes)
 
         print self.ior_runtimes
         return
