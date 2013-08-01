@@ -9,27 +9,40 @@ from examples.models.params import RARMAParams
 from analysis.params import ANSParams
 from me.params import MEParams
 from examples.models.params import GENParams
+import os, commands
 
 def main():
 
-    modParams = RARMAParams()
-    modParams._processConfigFile()
+    paramsdir = os.environ.get("PERFEXPDIR") + '/src/examples/params'
+    examplesdir = os.environ.get("PERFEXPDIR") + '/src/examples'
 
-    ansParams = ANSParams()
-    ansParams._processConfigFile()
+    dirList=os.listdir(paramsdir)
 
-    meParams = MEParams()
-    meParams._processConfigFile()
+    for fname in dirList:
+        if not fname.startswith('.'):
+            filename = paramsdir + '/' + fname
+            cpcmd = 'cp ' + filename + ' ' + examplesdir + '/params.txt'
+            commands.getstatusoutput(cpcmd)
 
-    genParams = GENParams()
-    genParams._processConfigFile()
+
+            modParams = RARMAParams()
+            modParams._processConfigFile()
+
+            ansParams = ANSParams()
+            ansParams._processConfigFile()
+
+            meParams = MEParams()
+            meParams._processConfigFile()
+            
+            genParams = GENParams()
+            genParams._processConfigFile()
     
-    vm = AIXMeasurementEnv()
-    plotter = Plotter()
-    model = RARMA()
-    xdata,ydata = vm.validateModel(model)
-    plotter.generatePlot(xdata,ydata)
-    plotter.generateMergedPlot(xdata,ydata)
+            vm = AIXMeasurementEnv()
+            plotter = Plotter()
+            model = RARMA()
+            xdata,ydata = vm.validateModel(model)
+            plotter.generatePlot(xdata,ydata)
+#           plotter.generateMergedPlot(xdata,ydata)
 
 if __name__ == "__main__":
 
