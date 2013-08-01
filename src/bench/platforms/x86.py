@@ -56,6 +56,8 @@ class X86(AbstractPlatform):
         self.datalatency = []  # data caches and main memory
         self.instrlatency = []  # instruction caches
         self.network_latency = {} #network latencies for diff kinds of protocols
+        self.system_ovrhds = {}
+
         # Log file for debugging
         self.logfile = os.path.join(os.getcwd(),'X86.log')
         
@@ -67,17 +69,17 @@ class X86(AbstractPlatform):
         self.tlb = {}  # similar to caches
         self.memory = {} # e.g., {'total_size': (16080.64,'MB')}
         self.processors = {} # e.g., {'processors': 8, 'brand' : 'Intel Xeon', 'model' : 'E5462', 'clock_speed': (2799.51,'MHz')}
-        # fill architecture details
-        self.get_hardware_specs() # gathers hardware intel 
+       
+        #run the benchmark - at least filling in the hardware details.
+        self.runBenchmark('ok')
         
-        # fill os details
-        self.system_ovrhds = {}
-        #self.fillbw()
-        #print self.cp_data_bw
         pass
 
 
     def runBenchmark(self, cmd):
+        self.get_hardware_specs()
+        self.fillbw()
+        #could possibly get an array of commands and run through them...
         # TODO: run entire benchmark 
         return
 
