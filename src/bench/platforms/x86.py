@@ -953,7 +953,25 @@ class X86(AbstractPlatform):
                        'creations/sec':int(line[2]), 'removals/sec':int(line[3])}
             self.lmbench_create_delete[line[0]] = val
      
-        return
+        return 
+
+    def get_rd_bw_plot_data(self):
+        '''To get x, y data, size of caches is in data_caches. combine with rd_bw values 
+        to get plot data that can then be sent to '''
+        print self.rd_data_bw
+        print self.data_caches
+        x_y_plots = {}
+        for k,v in self.rd_data_bw.iteritems():
+            keep = '';
+            if (k == 'l1'):
+                val = self.data_caches['L1']
+                val = val['size']
+                print val
+            if (k == 'l2'):
+                val = self.data_caches['L2']
+                val = val['size']
+                print val
+        return #x_y_plots
 
     def _log(self, thestr):
         f = open(self.logfile,"a")
