@@ -54,14 +54,14 @@ You can try them with:
 
 ## Running a performance experiment
 
-1. Go to perfexp/src/examples/params and add parameter values in params.txt for the ExperimentDriver and DataManager
+1_ Go to perfexp/src/examples/params and add parameter values in params.txt for the ExperimentDriver and DataManager
 section. Parameters that are required must have a value. Other parameters are needed only for running on specific
 systems. The required parameters are specified below under the section 'Parameter Definitions'.
 
 Optional: It is possible to define more then one parameter file in order to run multiple sets of experiments. The
 parameter files must be named uniquely in the params directory.
 
-2. Go to perfexp/src/examples/drivers and specify the measurement environment and performance collection mode in
+2_ Go to perfexp/src/examples/drivers and specify the measurement environment and performance collection mode in
 ExperimentDriver.py. For example, to run on an AIX platform and collect data with TAU, add the following lines to the
 header of ExperimentDriver.py
 
@@ -83,30 +83,30 @@ Optional: To collect hardware counters in the run, specify the hardware counter 
 counters = PAPI_TOT_CYC PAPI_FP_OPS PAPI_TOT_INS
 ```
 
-3. Go to perfexp/src/me/platforms/ and specify in platform python script the performance collection mode. For example,
+3_ Go to perfexp/src/me/platforms/ and specify in platform python script the performance collection mode. For example,
 to collect data with TAU, add the following line in the header:
 
 ```
 from me.tools.tau import Collector 
 ```
 
-4. Set the PERFEXPDIR environment variable to the location of perfexp top directory.
+4_ Set the PERFEXPDIR environment variable to the location of perfexp top directory.
 
-5. Go to the perfexp top directory and run the script to start the experiment:
+5_ Go to the perfexp top directory and run the script to start the experiment:
 
 ```
 $ scripts/perfexp examples.drivers.ExperimentDriver
 ```
 
-6. When the jobs finish running, the datadir (parameter from the DataManager section) will store the output from each
+6_ When the jobs finish running, the datadir (parameter from the DataManager section) will store the output from each
 run for the experiment
 
 ## Analysis of the results of a performance experiment
 
-1. Go to perfexp/src/examples and add parameter values in params.txt for the DataManager and Analysis section.
+1_ Go to perfexp/src/examples and add parameter values in params.txt for the DataManager and Analysis section.
 Parameters that are required must have a value. Other parameters are needed only for specific analysis tools.
 
-2. Go to perfexp/src/examples/drivers and specify the analysis tool in AnalysisDriver.py. For example, if PerfExplorer
+2_ Go to perfexp/src/examples/drivers and specify the analysis tool in AnalysisDriver.py. For example, if PerfExplorer
 is the analysis tool, add the following line to the header of AnalysisDriver.py
 
 ```
@@ -132,18 +132,18 @@ In the main function, add the following line to AnalysisDriver.py
 metric = WallClock(params={})
 ```
 
-3. Go to the perfexp top directory and run the script to analyze the performance data:
+3_ Go to the perfexp top directory and run the script to analyze the performance data:
 
 ```
 $ scripts/perfexp examples.drivers.AnalysisDriver
 ```
 
-4. When the analysis is complete, the resultsdir (parameter from the Analysis section) will store the analysis results
+4_ When the analysis is complete, the resultsdir (parameter from the Analysis section) will store the analysis results
 
 
 ## Modeling the performance of an application
 
-1. Go to perfexp/src/examples and add parameter values in params.txt for the Modeling and Analysis section. Parameters
+1_ Go to perfexp/src/examples and add parameter values in params.txt for the Modeling and Analysis section. Parameters
 that are required must have a value. Other parameters are needed only for specific models. For example, here are some
 additional parameters needed to model HPCC RandomAccess:
 
@@ -157,7 +157,7 @@ m = message size
 tul = time to unlock
 ```
 
-2. Go to perfexp/src/examples/drivers and specify the performance model in ModelDriver.py. For example, to model
+2_ Go to perfexp/src/examples/drivers and specify the performance model in ModelDriver.py. For example, to model
 RandomAccess by plotting and for an AIX platform, add the following line to the header of ModelDriver.py
 
 ```
@@ -174,13 +174,13 @@ plotter = Plotter()
 model = RARMA()
 ```
 
-3. Go to the perfexp top directory and run the script to model the application:
+3_ Go to the perfexp top directory and run the script to model the application:
 
 ```
 $ scripts/perfexp examples.drivers.ModelDriver
 ```
 
-4. When the modeling is complete, the resultsdir (parameter from the Analysis section) will store the analysis results
+4_ When the modeling is complete, the resultsdir (parameter from the Analysis section) will store the analysis results
 
 ## Parameter definitions
 
