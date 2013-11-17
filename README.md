@@ -43,9 +43,9 @@ Running
 
 Usage: 
 
-'''
+
    $ perfexp <drivermodule>
-'''
+
 
 The driver module is a Python module in your Python path. Some examples are included in the examples/drivers directory.
 You can try them with:
