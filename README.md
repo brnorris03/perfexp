@@ -69,10 +69,8 @@ parameter files must be named uniquely in the params directory.
 ExperimentDriver.py. For example, to run on an AIX platform and collect data with TAU, add the following lines to the
 header of ExperimentDriver.py
 
-'''
-from me.platforms.aix import BluePrint
-from me.tools.tau import Collector as TAUCollector
-'''
+	from me.platforms.aix import BluePrint
+	from me.tools.tau import Collector as TAUCollector
 
 In the main function, add the following lines to ExperimentDriver.py
 
