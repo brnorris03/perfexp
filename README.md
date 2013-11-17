@@ -6,6 +6,7 @@ Python Infrastructure for Managing Performance Experiments
 Directory organization:
 =================
 
+```
 src/
  |_ analysis/            
     |_ metrics/
@@ -21,7 +22,7 @@ src/
  |_ util/
  |_ vis/
     |_ tools/
-
+```
 
 Installing
 ==========
@@ -43,9 +44,9 @@ Running
 
 Usage: 
 
-
-   $ perfexp <drivermodule>
-
+```
+$ perfexp <drivermodule>
+```
 
 The driver module is a Python module in your Python path. Some examples are included in the examples/drivers directory.
 You can try them with:
