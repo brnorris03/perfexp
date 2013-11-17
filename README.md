@@ -42,9 +42,11 @@ Running
 =======
 
 Usage: 
+
 '''
    $ perfexp <drivermodule>
 '''
+
 The driver module is a Python module in your Python path. Some examples are included in the examples/drivers directory.
 You can try them with:
 
@@ -124,17 +126,23 @@ analysis = PerfExplorer()
 
 If using PerfExplorer for analysis, also specify the performance metric in AnalysisDriver.py. For example, to use
 wall-clock time as the analysis metric, add the following line to the header of AnalysisDriver
+
 '''
 from analysis.metrics.time import WallClock
 '''
+
 In the main function, add the following line to AnalysisDriver.py
+
 '''
 metric = WallClock(params={})
 '''
+
 3. Go to the perfexp top directory and run the script to analyze the performance data:
+
 '''
 $ scripts/perfexp examples.drivers.AnalysisDriver
 '''
+
 4. When the analysis is complete, the resultsdir (parameter from the Analysis section) will store the analysis results
 
 
@@ -165,20 +173,21 @@ from me.platforms.aix import BluePrint as AIXMeasurementEnv
 '''
 
 In the main function, add the following line to ModelDriver.py
+
 '''
 vm = AIXMeasurementEnv()
 plotter = Plotter()
 model = RARMA()
 '''
+
 3. Go to the perfexp top directory and run the script to model the application:
+
 '''
 $ scripts/perfexp examples.drivers.ModelDriver
 '''
+
 4. When the modeling is complete, the resultsdir (parameter from the Analysis section) will store the analysis results
 
-
-Parameter Definitions
-================
 
 Parameter definitions for ExperimentDriver section
 ======================================
@@ -207,7 +216,7 @@ Parameter definitions for ExperimentDriver section
 * commode: communication protocol mode #for internet, IP; for user space,US
 * smt: to enable simultaneous multithreading (yes or no)
 * memorysize: size of memory in bytes
-* 	queue: name of the job queue, this is system dependent
+* queue: name of the job queue, this is system dependent
 
 Parameter definitions for DataManager section:
 ==================================
@@ -228,7 +237,7 @@ Parameter definitions for the Analysis section:
 * metric: performance metric
 * metricparams: parameters in performance metric
 * xaxislabel (required): x axis label for performance graph
-* yaxislabel (required): y axix label for performance graph
+* yaxislabel (required): y axis label for performance graph
 * graphtitle (required): graph title
 * mhz: processor speed
 * ptool: performance tool # If using TAU, tau; if using PerfSuite, perfsuite
