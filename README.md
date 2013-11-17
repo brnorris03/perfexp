@@ -69,36 +69,38 @@ parameter files must be named uniquely in the params directory.
 ExperimentDriver.py. For example, to run on an AIX platform and collect data with TAU, add the following lines to the
 header of ExperimentDriver.py
 
-	from me.platforms.aix import BluePrint
-	from me.tools.tau import Collector as TAUCollector
+```
+from me.platforms.aix import BluePrint
+from me.tools.tau import Collector as TAUCollector
+```
 
 In the main function, add the following lines to ExperimentDriver.py
 
-'''
+```
 measurementEnvironment = BluePrint()
 dataCollector = TAUCollector()
-'''
+```
 
 Optional: To collect hardware counters in the run, specify the hardware counter names for the 'counters' parameter in params.txt. For example:
 
-'''
+```
 counters = PAPI_TOT_CYC PAPI_FP_OPS PAPI_TOT_INS
-'''
+```
 
 3. Go to perfexp/src/me/platforms/ and specify in platform python script the performance collection mode. For example,
-to collect data with TAU, add the following line in the heaader:
+to collect data with TAU, add the following line in the header:
 
-'''
+```
 from me.tools.tau import Collector 
-'''
+```
 
 4. Set the PERFEXPDIR environment variable to the location of perfexp top directory.
 
 5. Go to the perfexp top directory and run the script to start the experiment:
 
-'''
+```
 $ scripts/perfexp examples.drivers.ExperimentDriver
-'''
+```
 
 6. When the jobs finish running, the datadir (parameter from the DataManager section) will store the output from each
 run for the experiment
@@ -112,34 +114,34 @@ Parameters that are required must have a value. Other parameters are needed only
 2. Go to perfexp/src/examples/drivers and specify the analysis tool in AnalysisDriver.py. For example, if PerfExplorer
 is the analysis tool, add the following line to the header of AnalysisDriver.py
 
-'''
+```
 from analysis.tools.tau import PerfExplorer
-'''
+```
 
 In the main function, add the following line to AnalysisDriver.py
 
-'''
+```
 analysis = PerfExplorer()
-'''
+```
 
 If using PerfExplorer for analysis, also specify the performance metric in AnalysisDriver.py. For example, to use
 wall-clock time as the analysis metric, add the following line to the header of AnalysisDriver
 
-'''
+```
 from analysis.metrics.time import WallClock
-'''
+```
 
 In the main function, add the following line to AnalysisDriver.py
 
-'''
+```
 metric = WallClock(params={})
-'''
+```
 
 3. Go to the perfexp top directory and run the script to analyze the performance data:
 
-'''
+```
 $ scripts/perfexp examples.drivers.AnalysisDriver
-'''
+```
 
 4. When the analysis is complete, the resultsdir (parameter from the Analysis section) will store the analysis results
 
@@ -151,7 +153,7 @@ Modeling the performance of an application
 that are required must have a value. Other parameters are needed only for specific models. For example, here are some
 additional parameters needed to model HPCC RandomAccess:
 
-'''
+```
 tn: number of updates
 tg: time to generate a random value
 tu = time to perform an update
@@ -159,30 +161,30 @@ tl = time to get a lock
 ta = time to send/receive a message
 m = message size
 tul = time to unlock
-'''
+```
 
 2. Go to perfexp/src/examples/drivers and specify the performance model in ModelDriver.py. For example, to model
 RandomAccess by plotting and for an AIX platform, add the following line to the header of ModelDriver.py
 
-'''
+```
 from examples.models.rarma import RARMA
 from vis.tools.pylab import Plotter
 from me.platforms.aix import BluePrint as AIXMeasurementEnv
-'''
+```
 
 In the main function, add the following line to ModelDriver.py
 
-'''
+```
 vm = AIXMeasurementEnv()
 plotter = Plotter()
 model = RARMA()
-'''
+```
 
 3. Go to the perfexp top directory and run the script to model the application:
 
-'''
+```
 $ scripts/perfexp examples.drivers.ModelDriver
-'''
+```
 
 4. When the modeling is complete, the resultsdir (parameter from the Analysis section) will store the analysis results
 
