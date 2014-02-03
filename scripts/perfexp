@@ -1,19 +1,31 @@
 #!/usr/bin/env python
+
+# -------
+# imports
+# -------
+
 import os, sys, distutils.sysconfig, imp
 
+
+# ---------
+# FUNCTIONS
+# ---------
+
+# Returns a string indicating an error. 
+# Consider renaming? 
 def errMsg(msg=""):
     return 'perfexp ERROR: %s\nCould not set the Python path, please add the perfexp ' \
         + 'installation to the PYTHONPATH environment variable.\n\n' \
         + '\nFull Python path: %s' % (msg,sys.path)
-        
-def getperfexpPkgDir():
-    """Return the full path to the site-packages directory under the 
-    perfexp installation prefix (standard distutils installation).
-    
-    If 'prefix' is supplied, use it instead of the computed location
-    of the installed perfexp script.
-    """
-    
+
+# Returns the full path to the site-packages directory under the perfexp
+# installation prefix (standard distutils installation).
+# If 'prefix' is supplied, use it instead of the computed location of the 
+# installed perfexp script.
+# 
+# Dev Notes:
+#  Can this be cleaned up? 
+def getperfexpPkgDir(): 
     prefix = None
     perfexp_execdir = os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0])))
 
@@ -65,6 +77,12 @@ def getperfexpPkgDir():
     theparent = os.path.dirname(thedir)
     return (thedir, theparent)
 
+# Updates the PYTHONPATH environment variable to include
+# perfexpParent, perfexpPath, analysis sub-dir, metrics sub-dir, examples sub-dir
+# 
+# Dev Notes:
+#  imports AbstractPlatform <<< Why? What is this for? Is this in the right place?
+#  returns perfexpPath, perfexpParent <<< Not used 
 def setPythonPath():
 
     # Set the python path
@@ -81,7 +99,6 @@ def setPythonPath():
             sys.stderr.write('The perfexp module directory is %s\n' % perfexpPath)
             sys.stderr.write('Full Python path: %s\n' % sys.path)
 
-
     try:
         from me.interfaces import AbstractPlatform
     except RuntimeError,e:
@@ -89,14 +106,17 @@ def setPythonPath():
         sys.exit(1)
         
     return [perfexpPath, perfexpParent]
- 
 
 
+# ----
+# main
+# ----
 if __name__ == "__main__":
 
-    # Self test
+    # Update the PYTHONPATH environment variable
     setPythonPath()
     
+    # Check input args, and save the first one
     if len(sys.argv) < 2:
         sys.stderr.write('Usage: \n\tperfexp <drivermodule>\n\n' \
                          +'The driver module is a Python module in your Python path. ' \
@@ -104,12 +124,8 @@ if __name__ == "__main__":
                          + '\tperfexp examples.drivers.ExperimentDriver\n' \
                          + '\tperfexp examples.drivers.DataManagerDriver\n' \
                          + '\tperfexp examples.drivers.AnalysisDriver\n' \
-                         + '\tperfexp examples.drivers.ModelDriver\n' \
-                        )
-        sys.exit(1)
-        
-    
-    # The first argument is the driver script
+                         + '\tperfexp examples.drivers.ModelDriver\n')
+        sys.exit(1) 
     driver = sys.argv[1]
     
     # Find the module location of the driver
@@ -119,16 +135,12 @@ if __name__ == "__main__":
         if os.path.exists(os.path.join(dir,modulefile)):
             driverdir = os.path.join(dir,os.path.dirname(modulefile))
             break
-
     if not driverdir: 
         sys.stderr.write(errMsg())
         sys.exit(1)
-        
     drivermod = driver.split('.')[-1]
     modpath = sys.path
     modpath.append(driverdir)
-
-
     try:
         (file,filename,description) = imp.find_module(drivermod,modpath)
         mod = imp.load_module(drivermod, file, filename, description)
@@ -136,6 +148,6 @@ if __name__ == "__main__":
         sys.stderr.write(errMsg(e))
         sys.exit(1)
 
-
+    # run the driver's main
     mod.main()
 
