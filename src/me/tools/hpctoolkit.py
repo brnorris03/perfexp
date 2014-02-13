@@ -18,13 +18,13 @@ class Collector(AbstractCollector):
 
     def getCommand(self):
 
+        cmd = ' '
+
         if MEParams.meparams['instrumentation'] == "runtime":
             if MEParams.meparams['perfmode'] == "tracing":
                 cmd = 'hpcrun -t'
             elif MEParams.meparams['perfmode'] == "profiling":
                 cmd = 'hpcrun '
-        else:
-            cmd  = ' '
 
         return cmd
 
